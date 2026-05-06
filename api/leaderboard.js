@@ -9,13 +9,16 @@
 const DEFAULT_CHANNEL = "C0B2CQPFM4G";
 
 // --- Starting totals (seeds) ----------------------------------------------
-// Manually set baselines per person. Slack-posted counts ADD to these.
-// Only applied to the monthly view when SEED_MONTH matches the current month.
-// Always applied to the all-time view.
-// To clear: set count to 0 or remove the row.
+// Each entry is the person's CURRENT total as of SEEDS_AS_OF_TS. Slack
+// messages posted at or before that timestamp are ignored (so we don't
+// double-count). Slack messages posted AFTER that timestamp add to these.
+// Seeds apply to the monthly view only when SEED_MONTH matches the current
+// month; they always apply to the all-time view.
 const SEED_MONTH = "2026-05";
+const SEEDS_AS_OF_TS = 1778044007; // 2026-05-06 05:06 UTC
 const SEED_TOTALS = [
-  { slackId: "U0CU3LV6U",   name: "Robert",           count: 900 }, // rob
+  { slackId: "U08SCMV3886", name: "Mark Holder",      count: 80 },
+  { slackId: "U0CU3LV6U",   name: "Robert",           count: 900 },
   { slackId: "U07063Z2JAZ", name: "Marshall Sharpe",  count: 400 },
   { slackId: "U0CU4H9RD",   name: "Richard Sullivan", count: 510 },
   { slackId: "U0AQD7TR7MG", name: "Nate Cortés",      count: 255 },
@@ -130,11 +133,13 @@ export default async function handler(req, res) {
 
     for (const m of messages) {
       if (!m.user || !m.text) continue;
+      const ts = parseFloat(m.ts);
+      // Skip messages from before the seed cutoff to avoid double-counting
+      if (ts <= SEEDS_AS_OF_TS) continue;
       const n = parsePushups(m.text);
       if (n == null || n === 0 || Math.abs(n) > 5000) continue;
 
       allTime[m.user] = (allTime[m.user] || 0) + n;
-      const ts = parseFloat(m.ts);
       if (ts >= monthStartTs) {
         monthly[m.user] = (monthly[m.user] || 0) + n;
       }
