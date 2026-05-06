@@ -1,24 +1,26 @@
-// Shared logic: fetch Slack messages, parse pushup counts, return ranked totals.
-// Used by both /api/leaderboard (web view) and /api/post-daily (cron post).
+// /api/leaderboard — returns JSON leaderboard data.
+// Self-contained CommonJS function (no imports from other project files).
 
-export const DEFAULT_CHANNEL = "C0B2CQPFM4G";
+const DEFAULT_CHANNEL = "C0B2CQPFM4G";
 
-// --- Starting totals (seeds) ----------------------------------------------
-// Each entry is the person's CURRENT total as of SEEDS_AS_OF_TS. Slack
-// messages posted at or before that timestamp are ignored. Slack messages
-// posted AFTER add to these.
-export const SEED_MONTH = "2026-05";
-export const SEEDS_AS_OF_TS = 1778044007; // 2026-05-06 05:06 UTC
-export const SEED_TOTALS = [
+// --- Starting totals ------------------------------------------------------
+// Each entry is the person's CURRENT total as of SEEDS_AS_OF_TS.
+// Slack messages posted at or before that timestamp are ignored. Slack
+// messages posted AFTER add to these totals.
+const SEED_MONTH = "2026-05";
+const SEEDS_AS_OF_TS = 1778044007; // 2026-05-06 05:06 UTC
+const SEED_TOTALS = [
   { slackId: "U08SCMV3886", name: "Mark Holder",      count: 80 },
   { slackId: "U0CU3LV6U",   name: "Robert",           count: 900 },
   { slackId: "U07063Z2JAZ", name: "Marshall Sharpe",  count: 400 },
   { slackId: "U0CU4H9RD",   name: "Richard Sullivan", count: 510 },
   { slackId: "U0AQD7TR7MG", name: "Nate Cortés",      count: 255 },
-  { slackId: "seed:gord",   name: "Gord Sharpe",      count: 400 },
+  { slackId: "seed:gord",   name: "Gord Sharpe",      count: 400 }
 ];
 
-export function parsePushups(text) {
+const BOT_NAME_PATTERN = /^pushup\s+(leaderboard|challenge|bot)$/i;
+
+function parsePushups(text) {
   const t = (text || "").trim();
   if (!t) return null;
   if (/has joined|has left/i.test(t)) return null;
@@ -39,16 +41,14 @@ export function parsePushups(text) {
 
 async function slackFetch(path, params, token) {
   const url = new URL("https://slack.com/api/" + path);
-  for (const [k, v] of Object.entries(params)) {
-    if (v !== undefined && v !== null) url.searchParams.set(k, v);
+  for (const k of Object.keys(params)) {
+    if (params[k] !== undefined && params[k] !== null) {
+      url.searchParams.set(k, params[k]);
+    }
   }
   const r = await fetch(url, { headers: { Authorization: "Bearer " + token } });
   const data = await r.json();
-  if (!data.ok) {
-    const err = new Error("Slack API error: " + (data.error || "unknown"));
-    err.slackError = data.error;
-    throw err;
-  }
+  if (!data.ok) throw new Error("Slack API error: " + (data.error || "unknown"));
   return data;
 }
 
@@ -58,10 +58,10 @@ async function fetchAllMessages(channel, token) {
   for (let i = 0; i < 30; i++) {
     const data = await slackFetch(
       "conversations.history",
-      { channel, limit: 200, cursor },
+      { channel: channel, limit: 200, cursor: cursor },
       token
     );
-    messages.push(...(data.messages || []));
+    for (const m of (data.messages || [])) messages.push(m);
     cursor = data.response_metadata && data.response_metadata.next_cursor;
     if (!cursor) break;
   }
@@ -70,66 +70,61 @@ async function fetchAllMessages(channel, token) {
 
 async function fetchUserNames(userIds, token) {
   const names = {};
-  const results = await Promise.all(
-    userIds.map(async (uid) => {
-      try {
-        const d = await slackFetch("users.info", { user: uid }, token);
-        const u = d.user || {};
-        return [
-          uid,
-          u.real_name ||
-            (u.profile && u.profile.display_name) ||
-            u.name ||
-            uid,
-        ];
-      } catch {
-        return [uid, uid];
-      }
-    })
-  );
-  for (const [uid, name] of results) names[uid] = name;
+  await Promise.all(userIds.map(async function (uid) {
+    try {
+      const d = await slackFetch("users.info", { user: uid }, token);
+      const u = d.user || {};
+      names[uid] = u.real_name ||
+        (u.profile && u.profile.display_name) ||
+        u.name || uid;
+    } catch (e) {
+      names[uid] = uid;
+    }
+  }));
   return names;
 }
 
 function rank(totals, names) {
-  return Object.entries(totals)
-    .map(([uid, count]) => ({ name: names[uid] || uid, count }))
-    .sort((a, b) => b.count - a.count);
+  const out = [];
+  for (const uid of Object.keys(totals)) {
+    out.push({ name: names[uid] || uid, count: totals[uid] });
+  }
+  out.sort(function (a, b) { return b.count - a.count; });
+  return out;
 }
 
-export async function getLeaderboardData() {
+async function getLeaderboardData() {
   const token = process.env.SLACK_BOT_TOKEN;
   const channel = process.env.SLACK_CHANNEL_ID || DEFAULT_CHANNEL;
   if (!token) throw new Error("SLACK_BOT_TOKEN env var is not set");
 
   const now = new Date();
-  const monthStartTs =
-    new Date(now.getFullYear(), now.getMonth(), 1).getTime() / 1000;
+  const monthStartTs = new Date(now.getFullYear(), now.getMonth(), 1).getTime() / 1000;
 
   const messages = await fetchAllMessages(channel, token);
-  const userIds = [...new Set(messages.map((m) => m.user).filter(Boolean))];
+  const userIdSet = {};
+  for (const m of messages) if (m.user) userIdSet[m.user] = true;
+  const userIds = Object.keys(userIdSet);
   const names = await fetchUserNames(userIds, token);
 
-  // Identify bot users by display name (defense in depth in case bot_id isn't set)
-  const BOT_NAME_PATTERN = /^pushup\s+(leaderboard|challenge|bot)$/i;
-  const botUserIds = new Set();
-  for (const [uid, name] of Object.entries(names)) {
-    if (BOT_NAME_PATTERN.test(name)) botUserIds.add(uid);
+  // Identify any user whose name looks like the bot itself
+  const botUserIds = {};
+  for (const uid of Object.keys(names)) {
+    if (BOT_NAME_PATTERN.test(names[uid])) botUserIds[uid] = true;
   }
 
   const monthly = {};
   const allTime = {};
-  const recent = [];
 
   for (const m of messages) {
     if (!m.user || !m.text) continue;
-    // Skip messages from bots/apps (including this leaderboard's own daily post)
     if (m.bot_id || m.app_id || m.subtype === "bot_message") continue;
-    if (botUserIds.has(m.user)) continue;
-    // Skip anything that looks like the leaderboard's own post
+    if (botUserIds[m.user]) continue;
     if (/pushup leaderboard\s*[—-]/i.test(m.text)) continue;
+
     const ts = parseFloat(m.ts);
     if (ts <= SEEDS_AS_OF_TS) continue;
+
     const n = parsePushups(m.text);
     if (n == null || n === 0 || Math.abs(n) > 5000) continue;
 
@@ -137,19 +132,11 @@ export async function getLeaderboardData() {
     if (ts >= monthStartTs) {
       monthly[m.user] = (monthly[m.user] || 0) + n;
     }
-    recent.push({
-      user: names[m.user] || m.user,
-      count: n,
-      ts: m.ts,
-      when: new Date(ts * 1000).toISOString(),
-    });
   }
 
-  recent.sort((a, b) => parseFloat(b.ts) - parseFloat(a.ts));
-
   // Apply starting totals
-  const currentMonthKey =
-    now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0");
+  const currentMonthKey = now.getFullYear() + "-" +
+    String(now.getMonth() + 1).padStart(2, "0");
   for (const s of SEED_TOTALS) {
     allTime[s.slackId] = (allTime[s.slackId] || 0) + s.count;
     if (currentMonthKey === SEED_MONTH) {
@@ -158,18 +145,29 @@ export async function getLeaderboardData() {
     if (!names[s.slackId]) names[s.slackId] = s.name;
   }
 
+  const monthlyRanked = rank(monthly, names);
+  const allTimeRanked = rank(allTime, names);
+
+  let monthlyTotal = 0;
+  for (const k of Object.keys(monthly)) monthlyTotal += monthly[k];
+  let allTimeTotal = 0;
+  for (const k of Object.keys(allTime)) allTimeTotal += allTime[k];
+
   return {
     period: now.toLocaleString("en-US", { month: "long", year: "numeric" }),
-    channel,
-    monthly: {
-      leaderboard: rank(monthly, names),
-      total: Object.values(monthly).reduce((s, v) => s + v, 0),
-    },
-    allTime: {
-      leaderboard: rank(allTime, names),
-      total: Object.values(allTime).reduce((s, v) => s + v, 0),
-    },
-    recent: recent.slice(0, 10),
-    updated: new Date().toISOString(),
+    channel: channel,
+    monthly: { leaderboard: monthlyRanked, total: monthlyTotal },
+    allTime: { leaderboard: allTimeRanked, total: allTimeTotal },
+    updated: new Date().toISOString()
   };
 }
+
+module.exports = async function handler(req, res) {
+  try {
+    const data = await getLeaderboardData();
+    res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=300");
+    res.status(200).json(data);
+  } catch (e) {
+    res.status(500).json({ error: (e && e.message) || String(e) });
+  }
+};

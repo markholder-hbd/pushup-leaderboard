@@ -1,12 +1,5 @@
 {
-  "cleanUrls": true,
-  "rewrites": [
-    { "source": "/", "destination": "/index.html" }
-  ],
   "crons": [
-    {
-      "path": "/api/post-daily",
-      "schedule": "0 13 * * *"
-    }
+    { "path": "/api/post-daily", "schedule": "0 13 * * *" }
   ]
 }
