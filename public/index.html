@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pushup Leaderboard</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #fafaf7;
+    color: #1a1a1a;
+    padding: 32px 16px;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  header {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 4px; flex-wrap: wrap; gap: 8px;
+  }
+  h1 { font-size: 26px; margin: 0; font-weight: 700; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 18px; }
+  .controls {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 18px; flex-wrap: wrap;
+  }
+  .toggle {
+    display: inline-flex; background: #efece4; border-radius: 8px; padding: 3px;
+  }
+  .toggle button {
+    background: transparent; color: #555; border: 0; padding: 6px 14px;
+    border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 600;
+  }
+  .toggle button.active {
+    background: #fff; color: #1a1a1a;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+  button.refresh {
+    background: #1a1a1a; color: #fff; border: 0; padding: 6px 14px;
+    border-radius: 6px; font-size: 13px; cursor: pointer; margin-left: auto;
+  }
+  button.refresh:hover { background: #333; }
+  .meta {
+    display: flex; gap: 16px; font-size: 12px; color: #666;
+    margin-bottom: 18px; flex-wrap: wrap;
+  }
+  .meta b { color: #1a1a1a; }
+  .board {
+    background: #fff; border: 1px solid #e8e6e0; border-radius: 12px;
+    overflow: hidden;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 56px 1fr 100px 120px;
+    align-items: center;
+    padding: 14px 18px;
+    border-bottom: 1px solid #f0eee8;
+    gap: 12px;
+  }
+  .row:last-child { border-bottom: 0; }
+  .row.header {
+    background: #f6f4ee; font-size: 11px; text-transform: uppercase;
+    color: #777; font-weight: 600; letter-spacing: 0.04em;
+  }
+  .rank { font-weight: 700; font-size: 18px; text-align: center; }
+  .rank.gold { color: #c8930a; }
+  .rank.silver { color: #8a8a8a; }
+  .rank.bronze { color: #a0612a; }
+  .name { font-weight: 600; font-size: 15px; }
+  .count { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 18px; }
+  .bar { height: 8px; background: #efece4; border-radius: 4px; overflow: hidden; }
+  .bar > div { height: 100%; background: linear-gradient(90deg, #f4a847, #e8772b); }
+  .empty, .err {
+    padding: 40px 20px; text-align: center; color: #888; font-size: 14px;
+  }
+  .err { color: #8a2d1c; background: #fdf3f1; }
+  footer {
+    margin-top: 24px; font-size: 12px; color: #999; text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Pushup Leaderboard</h1>
+  </header>
+  <div class="sub">Counts pulled from Slack</div>
+
+  <div class="controls">
+    <div class="toggle" role="tablist">
+      <button id="btn-month" class="active" data-view="monthly">This month</button>
+      <button id="btn-all" data-view="allTime">All time</button>
+    </div>
+    <button class="refresh" id="refresh">Refresh</button>
+  </div>
+
+  <div class="meta">
+    <span id="period-label">Period: <b id="period">—</b></span>
+    <span>Total: <b id="total">—</b> pushups</span>
+    <span>Updated: <b id="updated">—</b></span>
+  </div>
+
+  <div class="board" id="board">
+    <div class="row header"><div>Rank</div><div>Staff</div><div>Pushups</div><div></div></div>
+    <div class="empty" id="empty">Loading…</div>
+  </div>
+
+  <footer>
+    Post a number in the Slack channel to add to your total. Top-level messages only — threaded replies aren't counted.
+  </footer>
+</div>
+
+<script>
+let cachedData = null;
+let currentView = "monthly";
+
+function setView(view) {
+  currentView = view;
+  document.getElementById("btn-month").classList.toggle("active", view === "monthly");
+  document.getElementById("btn-all").classList.toggle("active", view === "allTime");
+  if (cachedData) renderBoard(cachedData);
+}
+
+function renderBoard(data) {
+  const view = data[currentView] || { leaderboard: [], total: 0 };
+  document.getElementById("period").textContent =
+    currentView === "monthly" ? data.period : "All time";
+  document.getElementById("total").textContent = (view.total || 0).toLocaleString();
+
+  const board = document.getElementById("board");
+  board.querySelectorAll(".row:not(.header), .empty, .err").forEach(n => n.remove());
+
+  const ranked = view.leaderboard || [];
+  if (ranked.length === 0) {
+    const e = document.createElement("div");
+    e.className = "empty";
+    e.textContent = currentView === "monthly"
+      ? "No pushups counted yet this month."
+      : "No pushups counted yet.";
+    board.appendChild(e);
+    return;
+  }
+
+  const max = ranked[0].count || 1;
+  ranked.forEach((r, i) => {
+    const row = document.createElement("div");
+    row.className = "row";
+    const medalClass = i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : "";
+    row.innerHTML = `
+      <div class="rank ${medalClass}">${i + 1}</div>
+      <div class="name"></div>
+      <div class="count">${r.count.toLocaleString()}</div>
+      <div><div class="bar"><div style="width:${(r.count/max*100).toFixed(1)}%"></div></div></div>
+    `;
+    row.querySelector(".name").textContent = r.name;
+    board.appendChild(row);
+  });
+}
+
+async function load() {
+  const board = document.getElementById("board");
+  board.querySelectorAll(".row:not(.header), .empty, .err").forEach(n => n.remove());
+  const loading = document.createElement("div");
+  loading.className = "empty";
+  loading.textContent = "Loading…";
+  board.appendChild(loading);
+
+  try {
+    const r = await fetch("/api/leaderboard", { cache: "no-store" });
+    const data = await r.json();
+    if (!r.ok || data.error) throw new Error(data.error || ("HTTP " + r.status));
+    cachedData = data;
+    document.getElementById("updated").textContent = new Date(data.updated).toLocaleTimeString();
+    renderBoard(data);
+  } catch (e) {
+    loading.remove();
+    const err = document.createElement("div");
+    err.className = "err";
+    err.textContent = "Failed to load: " + e.message;
+    board.appendChild(err);
+  }
+}
+
+document.getElementById("btn-month").addEventListener("click", () => setView("monthly"));
+document.getElementById("btn-all").addEventListener("click", () => setView("allTime"));
+document.getElementById("refresh").addEventListener("click", load);
+load();
+</script>
+</body>
+</html>
