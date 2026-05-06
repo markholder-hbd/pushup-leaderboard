@@ -8,6 +8,20 @@
 
 const DEFAULT_CHANNEL = "C0B2CQPFM4G";
 
+// --- Starting totals (seeds) ----------------------------------------------
+// Manually set baselines per person. Slack-posted counts ADD to these.
+// Only applied to the monthly view when SEED_MONTH matches the current month.
+// Always applied to the all-time view.
+// To clear: set count to 0 or remove the row.
+const SEED_MONTH = "2026-05";
+const SEED_TOTALS = [
+  { slackId: "U0CU3LV6U",   name: "Robert",           count: 900 }, // rob
+  { slackId: "U07063Z2JAZ", name: "Marshall Sharpe",  count: 400 },
+  { slackId: "U0CU4H9RD",   name: "Richard Sullivan", count: 510 },
+  { slackId: "U0AQD7TR7MG", name: "Nate Cortés",      count: 255 },
+  { slackId: "seed:gord",   name: "Gord Sharpe",      count: 400 }, // not in Slack yet
+];
+
 function parsePushups(text) {
   const t = (text || "").trim();
   if (!t) return null;
@@ -133,6 +147,17 @@ export default async function handler(req, res) {
     }
 
     recent.sort((a, b) => parseFloat(b.ts) - parseFloat(a.ts));
+
+    // Apply seed/starting totals
+    const currentMonthKey =
+      now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0");
+    for (const s of SEED_TOTALS) {
+      allTime[s.slackId] = (allTime[s.slackId] || 0) + s.count;
+      if (currentMonthKey === SEED_MONTH) {
+        monthly[s.slackId] = (monthly[s.slackId] || 0) + s.count;
+      }
+      if (!names[s.slackId]) names[s.slackId] = s.name;
+    }
 
     res.setHeader("Cache-Control", "s-maxage=60, stale-while-revalidate=300");
     res.status(200).json({
