@@ -13,18 +13,19 @@ function parsePushups(text) {
   if (!t) return null;
   if (/has joined|has left/i.test(t)) return null;
 
-  // Plain number only: "20"
-  const plain = t.match(/^\s*(\d{1,4})\s*$/);
+  // Plain number, optionally negative: "20" or "-10"
+  const plain = t.match(/^\s*(-?\d{1,4})\s*$/);
   if (plain) return parseInt(plain[1], 10);
 
-  // Pushup keyword + a number anywhere: "did 30 pushups"
+  // Pushup keyword + a (possibly negative) number anywhere:
+  // "did 30 pushups", "removed -10 pushups"
   if (/\bpush[\s-]?ups?\b|\bpushup\b|\bpu\b/i.test(t)) {
-    const n = t.match(/\b(\d{1,4})\b/);
+    const n = t.match(/(?:^|[^\d])(-?\d{1,4})/);
     if (n) return parseInt(n[1], 10);
   }
 
-  // Number followed by short tail: "50 done!", "75 today"
-  const start = t.match(/^\s*(\d{1,4})\b[^\d]{0,20}$/);
+  // Number followed by short tail: "50 done!", "-10 oops"
+  const start = t.match(/^\s*(-?\d{1,4})\b[^\d]{0,20}$/);
   if (start) return parseInt(start[1], 10);
 
   return null;
@@ -116,7 +117,7 @@ export default async function handler(req, res) {
     for (const m of messages) {
       if (!m.user || !m.text) continue;
       const n = parsePushups(m.text);
-      if (n == null || n <= 0 || n > 5000) continue;
+      if (n == null || n === 0 || Math.abs(n) > 5000) continue;
 
       allTime[m.user] = (allTime[m.user] || 0) + n;
       const ts = parseFloat(m.ts);
