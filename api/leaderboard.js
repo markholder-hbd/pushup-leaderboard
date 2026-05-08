@@ -133,6 +133,9 @@ async function getLeaderboardData() {
   const monthly = {};
   const allTime = {};
   const dailyByUser = {}; // dailyByUser[userId][YYYY-MM-DD] = total pushups that day
+  const userGoals = {}; // userGoals[userId] = goal number
+  const userGoalTs = {}; // userGoalTs[userId] = timestamp of latest goal-set message
+  const GOAL_PATTERN = /\bgoal[:\s]+\s*(\d{2,5})\b/i;
 
   for (const m of messages) {
     if (!m.user || !m.text) continue;
@@ -141,6 +144,20 @@ async function getLeaderboardData() {
     if (/pushup leaderboard\s*[—-]/i.test(m.text)) continue;
 
     const ts = parseFloat(m.ts);
+
+    // Goal-setting message: "Goal: 1500" — track latest per user, don't count as pushups
+    const goalMatch = m.text.match(GOAL_PATTERN);
+    if (goalMatch) {
+      const goalNum = parseInt(goalMatch[1], 10);
+      if (goalNum >= 50 && goalNum <= 100000) {
+        if (!userGoalTs[m.user] || ts > userGoalTs[m.user]) {
+          userGoals[m.user] = goalNum;
+          userGoalTs[m.user] = ts;
+        }
+      }
+      continue;
+    }
+
     if (ts <= SEEDS_AS_OF_TS) continue;
 
     const n = parsePushups(m.text);
@@ -184,17 +201,22 @@ async function getLeaderboardData() {
       const todayTotal = days[todayKey] || 0;
       let bestCount = 0, bestDate = null;
       let postSeedTotal = 0;
-      for (const d of Object.keys(days)) {
+      const dayList = Object.keys(days);
+      for (const d of dayList) {
         postSeedTotal += days[d];
         if (days[d] > bestCount) { bestCount = days[d]; bestDate = d; }
       }
+      const goalTarget = userGoals[e.uid] || MONTHLY_GOAL;
       return {
         name: e.name,
         count: e.count,
         today: todayTotal,
         bestDay: bestCount > 0 ? { count: bestCount, date: bestDate } : null,
         avgPerDay: postSeedTotal > 0 ? Math.round(postSeedTotal / daysElapsed) : 0,
-        goalPercent: Math.min(100, Math.round((e.count / MONTHLY_GOAL) * 100))
+        daysActive: dayList.length,
+        goalTarget: goalTarget,
+        goalPercent: Math.min(100, Math.round((e.count / goalTarget) * 100)),
+        customGoal: !!userGoals[e.uid]
       };
     });
   }

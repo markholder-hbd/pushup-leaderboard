@@ -6,69 +6,123 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <title>Pushup Leaderboard</title>
 <style>
-  :root { color-scheme: light; }
+  :root {
+    color-scheme: light;
+    --nova-yellow: #d8f04a;
+    --nova-yellow-dim: #b8c937;
+    --nova-yellow-soft: #f1f9bf;
+    --black: #000;
+    --bg: #fafaf7;
+    --card: #ffffff;
+    --border: #e8e6e0;
+    --text: #0a0a0a;
+    --muted: #6b6b66;
+    --hint: #9c9c95;
+  }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: #fafaf7;
-    color: #1a1a1a;
-    padding: 32px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 800px; margin: 0 auto; }
+
+  /* ===== Hero / brand ===== */
+  .hero {
+    background: var(--black);
+    color: #fff;
+    padding: 36px 32px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: ""; display: block;
+    height: 6px; background: var(--nova-yellow);
+    margin: 36px -32px -36px;
+  }
+  .hero-inner { max-width: 880px; margin: 0 auto; }
   .brand-strip {
-    display: flex; align-items: center; gap: 14px;
-    margin-bottom: 22px;
+    display: flex; align-items: center; gap: 24px;
+    margin-bottom: 28px;
   }
-  .brand-strip img { height: 30px; width: auto; display: block; }
-  .brand-strip .x { color: #b8b3a4; font-size: 16px; font-weight: 500; }
-  header {
-    display: flex; align-items: baseline; justify-content: space-between;
-    margin-bottom: 4px; flex-wrap: wrap; gap: 8px;
+  .brand-strip img { height: 64px; width: auto; display: block; }
+  .brand-strip .x {
+    color: rgba(255,255,255,0.35);
+    font-size: 28px; font-weight: 300; line-height: 1;
   }
-  h1 { font-size: 26px; margin: 0; font-weight: 700; }
-  .sub { color: #666; font-size: 13px; margin-bottom: 18px; }
+  .hero h1 {
+    font-size: 42px; margin: 0; font-weight: 800;
+    letter-spacing: -0.03em; line-height: 1.05;
+    color: #fff;
+  }
+  .hero h1 em {
+    font-style: normal; color: var(--nova-yellow);
+  }
+  .hero .sub {
+    color: rgba(255,255,255,0.65);
+    font-size: 14px; margin-top: 8px;
+    letter-spacing: 0.01em;
+  }
+
+  /* ===== Body wrap ===== */
+  .wrap { max-width: 880px; margin: 0 auto; padding: 28px 16px 48px; }
+
+  /* ===== Controls + meta ===== */
   .controls {
     display: flex; align-items: center; gap: 12px;
-    margin-bottom: 14px; flex-wrap: wrap;
+    margin-bottom: 16px; flex-wrap: wrap;
   }
   .toggle {
-    display: inline-flex; background: #efece4; border-radius: 8px; padding: 3px;
+    display: inline-flex; background: #efece4; border-radius: 999px; padding: 3px;
   }
   .toggle button {
-    background: transparent; color: #555; border: 0; padding: 6px 14px;
-    border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 600;
+    background: transparent; color: #555; border: 0; padding: 7px 16px;
+    border-radius: 999px; font-size: 13px; cursor: pointer; font-weight: 600;
+    letter-spacing: 0.01em;
   }
   .toggle button.active {
-    background: #fff; color: #1a1a1a;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    background: var(--black); color: var(--nova-yellow);
   }
   button.refresh {
-    background: #1a1a1a; color: #fff; border: 0; padding: 6px 14px;
-    border-radius: 6px; font-size: 13px; cursor: pointer; margin-left: auto;
+    background: var(--black); color: #fff; border: 0; padding: 8px 16px;
+    border-radius: 999px; font-size: 13px; cursor: pointer; margin-left: auto;
+    font-weight: 600; letter-spacing: 0.01em;
   }
-  button.refresh:hover { background: #333; }
+  button.refresh:hover { background: #1a1a1a; }
   .meta {
-    display: flex; gap: 16px; font-size: 12px; color: #666;
-    margin-bottom: 14px; flex-wrap: wrap;
+    display: flex; gap: 18px; font-size: 12px; color: var(--muted);
+    margin-bottom: 16px; flex-wrap: wrap;
   }
-  .meta b { color: #1a1a1a; }
+  .meta b { color: var(--text); font-weight: 700; }
+
+  /* ===== Today leader banner ===== */
   .leader-banner {
-    background: #fff8ec; border: 1px solid #f3d68a;
-    border-radius: 10px; padding: 12px 16px; margin-bottom: 14px;
-    display: flex; align-items: center; gap: 10px;
-    font-size: 14px;
+    background: var(--nova-yellow);
+    border-radius: 12px; padding: 14px 18px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 14px; color: var(--black);
+    font-weight: 500;
   }
-  .leader-banner.empty { background: #f6f4ee; border-color: #e8e6e0; color: #888; }
-  .leader-banner .flame { font-size: 18px; }
-  .leader-banner b { color: #1a1a1a; }
+  .leader-banner.empty {
+    background: #f6f4ee; color: var(--muted); font-weight: 400;
+  }
+  .leader-banner .flame { font-size: 18px; line-height: 1; }
+  .leader-banner b { font-weight: 800; }
+
+  /* ===== Board ===== */
   .board {
-    background: #fff; border: 1px solid #e8e6e0; border-radius: 12px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
     overflow: hidden;
+    position: relative;
+  }
+  .board::before {
+    content: ""; display: block;
+    height: 4px; background: var(--nova-yellow);
   }
   .row {
     display: grid;
-    grid-template-columns: 50px 1fr 110px 70px 110px;
+    grid-template-columns: 44px 1fr 100px 60px 60px 50px 90px;
     align-items: center;
     padding: 14px 18px;
     border-bottom: 1px solid #f0eee8;
@@ -77,82 +131,145 @@
   .row:last-child { border-bottom: 0; }
   .row.header {
     background: #f6f4ee; font-size: 11px; text-transform: uppercase;
-    color: #777; font-weight: 600; letter-spacing: 0.04em;
+    color: #888; font-weight: 700; letter-spacing: 0.06em;
     padding-top: 10px; padding-bottom: 10px;
   }
   .col-num { text-align: right; }
-  .rank { font-weight: 700; font-size: 18px; text-align: center; }
-  .rank.gold { color: #c8930a; }
-  .rank.silver { color: #8a8a8a; }
-  .rank.bronze { color: #a0612a; }
-  .name-cell { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .name {
-    font-weight: 600; font-size: 15px;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  .rank { font-weight: 800; font-size: 18px; text-align: center; color: var(--hint); }
+  .rank.gold {
+    background: var(--nova-yellow); color: var(--black);
+    border-radius: 999px;
+    width: 32px; height: 32px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 15px;
   }
-  .sub-line { font-size: 11px; color: #999; }
+  .rank.silver {
+    background: #e3e3df; color: var(--text);
+    border-radius: 999px;
+    width: 32px; height: 32px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 15px;
+  }
+  .rank.bronze {
+    background: #f0d8b8; color: var(--text);
+    border-radius: 999px;
+    width: 32px; height: 32px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 15px;
+  }
+  .name {
+    font-weight: 700; font-size: 15px; color: var(--text);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    letter-spacing: -0.01em;
+  }
   .total-cell { text-align: right; }
   .count {
-    font-variant-numeric: tabular-nums; font-weight: 700; font-size: 18px;
-    line-height: 1.1;
+    font-variant-numeric: tabular-nums; font-weight: 800; font-size: 18px;
+    line-height: 1.1; color: var(--text);
+    letter-spacing: -0.01em;
   }
   .goal-bar {
-    height: 4px; background: #efece4; border-radius: 2px;
+    height: 5px; background: #efece4; border-radius: 999px;
     margin-top: 5px; margin-left: auto; width: 90px; overflow: hidden;
   }
   .goal-bar > div {
-    height: 100%; background: linear-gradient(90deg, #f4a847, #e8772b);
-    border-radius: 2px;
+    height: 100%; background: var(--nova-yellow);
+    border-radius: 999px;
   }
-  .goal-pct { font-size: 10px; color: #999; margin-top: 2px; }
+  .goal-pct { font-size: 10px; color: var(--hint); margin-top: 2px; }
+
+  /* Avg + Days — stand-out columns */
+  .stat-num {
+    font-variant-numeric: tabular-nums; font-weight: 700;
+    font-size: 16px; color: var(--text); text-align: right;
+    line-height: 1.1;
+  }
+  .stat-num.zero { color: var(--hint); font-weight: 500; }
+  .stat-sub {
+    display: block; font-size: 10px; color: var(--hint);
+    font-weight: 500; margin-top: 1px;
+  }
+
+  /* Today */
+  .today-cell { text-align: right; }
   .today {
     font-variant-numeric: tabular-nums; font-size: 16px;
-    text-align: right; color: #1a1a1a; font-weight: 600;
+    color: var(--text); font-weight: 700;
   }
-  .today.zero { color: #b8b3a4; font-weight: 400; }
-  .today.fire { color: #e8772b; font-weight: 700; }
+  .today.zero { color: var(--hint); font-weight: 500; }
+  .today.fire {
+    display: inline-block; padding: 3px 8px; border-radius: 999px;
+    background: var(--nova-yellow); color: var(--black);
+    font-weight: 800;
+  }
+
+  /* Best */
   .best {
     font-variant-numeric: tabular-nums; font-size: 14px; text-align: right;
-    color: #1a1a1a; font-weight: 600;
+    color: var(--text); font-weight: 700;
   }
-  .best .date { display: block; font-size: 10px; color: #999; font-weight: 400; }
-  .best.none { color: #b8b3a4; font-weight: 400; }
+  .best .date { display: block; font-size: 10px; color: var(--hint); font-weight: 500; }
+  .best.none { color: var(--hint); font-weight: 500; }
+
   .empty, .err {
-    padding: 40px 20px; text-align: center; color: #888; font-size: 14px;
+    padding: 40px 20px; text-align: center; color: var(--muted); font-size: 14px;
   }
   .err { color: #8a2d1c; background: #fdf3f1; }
   footer {
-    margin-top: 24px; font-size: 12px; color: #999; text-align: center;
+    margin-top: 24px; font-size: 12px; color: var(--hint); text-align: center;
+    line-height: 1.7;
   }
-  @media (max-width: 600px) {
+  footer code {
+    background: #efece4; padding: 1px 5px; border-radius: 3px;
+    font-size: 11px; color: var(--text);
+  }
+  footer .footer-tip {
+    display: block; margin-top: 4px;
+  }
+
+  @media (max-width: 720px) {
+    .hero { padding: 28px 20px 28px; }
+    .hero::after { margin: 28px -20px -28px; }
+    .hero h1 { font-size: 32px; }
+    .brand-strip img { height: 48px; }
     .row {
-      grid-template-columns: 36px 1fr 80px 56px 80px;
+      grid-template-columns: 36px 1fr 80px 50px 56px 40px 76px;
       padding: 12px 12px;
       gap: 6px;
     }
     .name { font-size: 14px; }
     .count { font-size: 16px; }
+    .stat-num { font-size: 14px; }
     .today { font-size: 14px; }
     .best { font-size: 13px; }
     .goal-bar { width: 70px; }
+    .rank.gold, .rank.silver, .rank.bronze { width: 28px; height: 28px; font-size: 13px; }
+  }
+
+  @media (max-width: 480px) {
+    /* On very small screens, hide Avg + Days to keep readable */
+    .row { grid-template-columns: 32px 1fr 70px 50px 70px; }
+    .col-avg, .col-days { display: none; }
   }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <div class="brand-strip">
-    <img src="/nova.svg" alt="Nova"
-         onerror="this.style.display='none'; this.nextElementSibling.style.display='none';">
-    <span class="x">×</span>
-    <img src="/hummingbird.png" alt="Hummingbird"
-         onerror="this.style.display='none'; this.previousElementSibling.style.display='none';">
+<header class="hero">
+  <div class="hero-inner">
+    <div class="brand-strip">
+      <img src="/nova.svg" alt="Nova" id="logo-nova"
+           onerror="this.style.display='none'; document.getElementById('brand-x').style.display='none';">
+      <span class="x" id="brand-x">×</span>
+      <img src="/hummingbird.png" alt="Hummingbird" id="logo-bird"
+           onerror="this.style.display='none'; document.getElementById('brand-x').style.display='none';">
+    </div>
+    <h1>Pushup <em>Leaderboard</em></h1>
+    <div class="sub">May 2026 challenge · #2026-pushup-challenge</div>
   </div>
+</header>
 
-  <header>
-    <h1>Pushup Leaderboard</h1>
-  </header>
-  <div class="sub">Counts pulled from Slack</div>
+<div class="wrap">
 
   <div class="controls">
     <div class="toggle" role="tablist">
@@ -166,7 +283,6 @@
     <span>Period: <b id="period">—</b></span>
     <span>Total: <b id="total">—</b></span>
     <span>Today: <b id="today-total">—</b></span>
-    <span>Goal: <b id="goal-target">—</b>/mo</span>
     <span>Updated: <b id="updated">—</b></span>
   </div>
 
@@ -177,14 +293,19 @@
       <div>Rank</div>
       <div>Staff</div>
       <div class="col-num">Total</div>
+      <div class="col-num col-avg">Avg/day</div>
       <div class="col-num">Today</div>
+      <div class="col-num col-days">Days</div>
       <div class="col-num">Best day</div>
     </div>
     <div class="empty" id="empty">Loading…</div>
   </div>
 
   <footer>
-    Post a number in the Slack channel to add to your total. Negative numbers (e.g. <code>-10</code>) subtract.
+    Post a number in the Slack channel to add to your total. Negative (e.g. <code>-10</code>) subtracts.
+    <span class="footer-tip">
+      Set your monthly goal in Slack: type <code>Goal: 1500</code>
+    </span>
   </footer>
 </div>
 
@@ -208,6 +329,12 @@ function formatDate(yyyymmdd) {
   return m + " " + parseInt(parts[2], 10);
 }
 
+function escapeHtml(s) {
+  const div = document.createElement("div");
+  div.textContent = s;
+  return div.innerHTML;
+}
+
 function renderLeaderBanner(data) {
   const banner = document.getElementById("leader-banner");
   if (data.todayLeader && data.todayLeader.count > 0) {
@@ -222,19 +349,12 @@ function renderLeaderBanner(data) {
   }
 }
 
-function escapeHtml(s) {
-  const div = document.createElement("div");
-  div.textContent = s;
-  return div.innerHTML;
-}
-
 function renderBoard(data) {
   const view = data[currentView] || { leaderboard: [], total: 0 };
   document.getElementById("period").textContent =
     currentView === "monthly" ? data.period : "All time";
   document.getElementById("total").textContent = (view.total || 0).toLocaleString();
   document.getElementById("today-total").textContent = (data.todayTotal || 0).toLocaleString();
-  document.getElementById("goal-target").textContent = (data.monthlyGoal || 1000).toLocaleString();
 
   if (currentView === "monthly") {
     renderLeaderBanner(data);
@@ -265,22 +385,32 @@ function renderBoard(data) {
     const todayClass = todayCount === 0 ? "zero" : (todayCount >= 50 ? "fire" : "");
     const best = r.bestDay;
     const avg = r.avgPerDay || 0;
-    const goalPct = (currentView === "monthly") ? (r.goalPercent || 0) : null;
+    const daysActive = r.daysActive || 0;
+    const showGoal = (currentView === "monthly");
+    const goalPct = showGoal ? (r.goalPercent || 0) : null;
+    const goalTarget = r.goalTarget || 1000;
 
     row.innerHTML = `
-      <div class="rank ${medalClass}">${i + 1}</div>
-      <div class="name-cell">
-        <div class="name"></div>
-        <div class="sub-line">${avg > 0 ? "avg " + avg.toLocaleString() + "/day" : "—"}</div>
-      </div>
+      <div><span class="rank ${medalClass}">${i + 1}</span></div>
+      <div class="name"></div>
       <div class="total-cell">
         <div class="count">${r.count.toLocaleString()}</div>
-        ${goalPct !== null ? `
+        ${showGoal ? `
           <div class="goal-bar"><div style="width:${goalPct}%"></div></div>
-          <div class="goal-pct">${goalPct}% of goal</div>
+          <div class="goal-pct">${goalPct}% of ${goalTarget.toLocaleString()}${r.customGoal ? "" : ""}</div>
         ` : ""}
       </div>
-      <div class="today ${todayClass}">${todayCount > 0 ? todayCount.toLocaleString() : "—"}</div>
+      <div class="col-avg col-num">
+        <span class="stat-num ${avg === 0 ? "zero" : ""}">${avg > 0 ? avg.toLocaleString() : "—"}</span>
+      </div>
+      <div class="today-cell">
+        ${todayCount > 0
+          ? `<span class="today ${todayClass}">${todayCount.toLocaleString()}</span>`
+          : `<span class="today zero">—</span>`}
+      </div>
+      <div class="col-days col-num">
+        <span class="stat-num ${daysActive === 0 ? "zero" : ""}">${daysActive > 0 ? daysActive : "—"}</span>
+      </div>
       <div class="best ${best ? "" : "none"}">
         ${best ? best.count.toLocaleString() : "—"}
         ${best ? `<span class="date">${formatDate(best.date)}</span>` : ""}
