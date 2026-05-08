@@ -18,9 +18,13 @@
     --sage: #D8E6E1;
     --ivory: #ECEAE4;
     --white: #FFFFFF;
-    --bg: var(--ivory);
+    --bg: var(--night);
+    --header-bg: var(--ivory);
     --card: var(--white);
-    --border: #d6d3c8;
+    --border: #2a2425;
+    --text-on-dark: #ECEAE4;
+    --muted-on-dark: rgba(236,234,228,0.55);
+    --hint-on-dark: rgba(236,234,228,0.4);
     --text: var(--night);
     --muted: #5d5b56;
     --hint: #9c9a93;
@@ -30,94 +34,94 @@
     margin: 0;
     font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: var(--bg);
-    color: var(--text);
+    color: var(--text-on-dark);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* ===== Hero ===== */
+  /* ===== Hero (light) ===== */
   .hero {
-    background: var(--night);
-    color: #fff;
-    padding: 28px 32px 30px;
+    background: var(--header-bg);
+    color: var(--text);
+    padding: 28px 32px 32px;
     position: relative;
     overflow: hidden;
   }
   .hero::after {
     content: ""; display: block;
-    height: 4px; background: var(--laser-yellow);
-    margin: 30px -32px -30px;
+    height: 5px; background: var(--laser-yellow);
+    margin: 32px -32px -32px;
   }
   .hero-inner { max-width: 880px; margin: 0 auto; }
+  .hero-brand {
+    display: flex; align-items: center; gap: 20px;
+    margin-bottom: 22px;
+  }
+  .hero-brand img.nova-wm { height: 40px; width: auto; display: block; }
+  .hero-brand img.bird { height: 48px; width: auto; display: block; }
+  .hero-brand .x {
+    color: rgba(25,19,20,0.3);
+    font-size: 22px; font-weight: 300; line-height: 1;
+  }
   .hero h1 {
-    font-size: 36px; margin: 0; font-weight: 700;
+    font-size: 38px; margin: 0; font-weight: 700;
     letter-spacing: -0.03em; line-height: 1;
-    color: #fff;
+    color: var(--night);
   }
   .hero h1 em {
-    font-style: normal; color: var(--laser-yellow); font-weight: 700;
+    font-style: normal;
+    color: var(--night);
+    background: linear-gradient(transparent 60%, var(--laser-yellow) 60%);
+    padding: 0 4px;
+    margin: 0 -4px;
   }
   .hero .sub {
-    color: rgba(255,255,255,0.55);
+    color: var(--muted);
     font-size: 12px; margin-top: 10px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     font-weight: 500;
   }
 
-  /* ===== Brand band below hero ===== */
-  .brand-band {
-    background: var(--sage);
-    padding: 14px 32px;
-  }
-  .brand-band-inner {
-    max-width: 880px; margin: 0 auto;
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 24px;
-  }
-  .brand-band img.nova-wm { height: 32px; width: auto; display: block; }
-  .brand-band img.bird { height: 36px; width: auto; display: block; }
-  .brand-band .x {
-    color: rgba(25,19,20,0.35);
-    font-size: 20px; font-weight: 300; line-height: 1;
-  }
-
   /* ===== Body wrap ===== */
   .wrap { max-width: 880px; margin: 0 auto; padding: 32px 16px 56px; }
 
-  /* ===== Controls + meta ===== */
+  /* ===== Controls + meta (on dark) ===== */
   .controls {
     display: flex; align-items: center; gap: 12px;
     margin-bottom: 18px; flex-wrap: wrap;
   }
   .toggle {
-    display: inline-flex; background: #efece4; border-radius: 999px; padding: 3px;
+    display: inline-flex;
+    background: rgba(236,234,228,0.08);
+    border: 1px solid rgba(236,234,228,0.1);
+    border-radius: 999px; padding: 3px;
   }
   .toggle button {
-    background: transparent; color: #555; border: 0; padding: 8px 18px;
+    background: transparent; color: var(--muted-on-dark); border: 0; padding: 8px 18px;
     border-radius: 999px; font-size: 13px; cursor: pointer; font-weight: 600;
     letter-spacing: 0.005em;
     font-family: inherit;
   }
   .toggle button.active {
-    background: var(--night); color: var(--laser-yellow);
+    background: var(--laser-yellow); color: var(--night);
   }
   button.refresh {
-    background: var(--night); color: #fff; border: 0; padding: 9px 18px;
+    background: var(--laser-yellow); color: var(--night); border: 0; padding: 9px 18px;
     border-radius: 999px; font-size: 13px; cursor: pointer; margin-left: auto;
-    font-weight: 600; letter-spacing: 0.005em;
+    font-weight: 700; letter-spacing: 0.005em;
     font-family: inherit;
   }
-  button.refresh:hover { background: #1f1f1f; }
+  button.refresh:hover { filter: brightness(1.05); }
   .meta {
-    display: flex; gap: 20px; font-size: 12px; color: var(--muted);
+    display: flex; gap: 20px; font-size: 12px; color: var(--muted-on-dark);
     margin-bottom: 18px; flex-wrap: wrap;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-weight: 500;
   }
   .meta b {
-    color: var(--text); font-weight: 700;
+    color: var(--text-on-dark); font-weight: 700;
     text-transform: none;
     letter-spacing: -0.01em;
     font-size: 14px;
@@ -133,7 +137,9 @@
     font-weight: 500;
   }
   .leader-banner.empty {
-    background: #f3f0e6; color: var(--muted); font-weight: 400;
+    background: rgba(236,234,228,0.06);
+    border: 1px solid rgba(236,234,228,0.12);
+    color: var(--muted-on-dark); font-weight: 400;
   }
   .leader-banner .flame { font-size: 18px; line-height: 1; }
   .leader-banner b { font-weight: 800; }
@@ -251,14 +257,14 @@
   }
   .err { color: #8a2d1c; background: #fdf3f1; }
   footer {
-    margin-top: 28px; font-size: 12px; color: var(--hint); text-align: center;
+    margin-top: 28px; font-size: 12px; color: var(--hint-on-dark); text-align: center;
     line-height: 1.7;
     letter-spacing: 0.005em;
   }
   footer code {
-    background: #efece4; padding: 1px 6px; border-radius: 4px;
-    font-size: 11px; color: var(--text);
-    font-family: "SF Mono", "Menlo", monospace;
+    background: rgba(236,234,228,0.08); padding: 1px 6px; border-radius: 4px;
+    font-size: 11px; color: var(--text-on-dark);
+    font-family: "IBM Plex Mono", "SF Mono", "Menlo", monospace;
   }
   footer .footer-tip { display: block; margin-top: 4px; }
 
@@ -266,9 +272,10 @@
     .hero { padding: 20px 22px 22px; }
     .hero::after { margin: 22px -22px -22px; }
     .hero h1 { font-size: 26px; }
-    .hero .sub { font-size: 12px; }
-    .brand-strip img { height: 40px; }
-    .brand-strip { gap: 14px; }
+    .hero .sub { font-size: 11px; }
+    .hero-brand { gap: 14px; margin-bottom: 16px; }
+    .hero-brand img.nova-wm { height: 32px; }
+    .hero-brand img.bird { height: 38px; }
     .row {
       grid-template-columns: 36px 1fr 84px 56px 60px 80px;
       padding: 14px 14px;
@@ -293,19 +300,17 @@
 
 <header class="hero">
   <div class="hero-inner">
+    <div class="hero-brand">
+      <img class="nova-wm" src="/nova-wordmark.svg" alt="Nova" id="logo-nova"
+           onerror="this.style.display='none'; document.getElementById('brand-x').style.display='none';">
+      <span class="x" id="brand-x">×</span>
+      <img class="bird" src="/hummingbird.png" alt="Hummingbird Drones" id="logo-bird"
+           onerror="this.style.display='none'; document.getElementById('brand-x').style.display='none';">
+    </div>
     <h1>Pushup <em>Leaderboard</em></h1>
     <div class="sub">May 2026 challenge · #2026-pushup-challenge</div>
   </div>
 </header>
-<div class="brand-band">
-  <div class="brand-band-inner">
-    <img class="nova-wm" src="/nova-wordmark.svg" alt="Nova" id="logo-nova"
-         onerror="this.style.display='none'; document.getElementById('brand-x').style.display='none';">
-    <span class="x" id="brand-x">×</span>
-    <img class="bird" src="/hummingbird.png" alt="Hummingbird Drones" id="logo-bird"
-         onerror="this.style.display='none'; document.getElementById('brand-x').style.display='none';">
-  </div>
-</div>
 
 <div class="wrap">
 
