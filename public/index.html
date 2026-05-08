@@ -6,36 +6,38 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <title>Pushup Leaderboard · Nova</title>
 <style>
   :root {
     color-scheme: light;
-    --nova-yellow: #d8f04a;
-    --nova-yellow-dim: #b8c937;
-    --nova-yellow-soft: #f1f9bf;
-    --black: #0a0a0a;
-    --bg: #fafaf7;
-    --card: #ffffff;
-    --border: #e6e3da;
-    --text: #0a0a0a;
-    --muted: #6b6b66;
-    --hint: #9c9c95;
+    --laser-yellow: #F1FF66;
+    --night: #191314;
+    --dark-moon: #33171E;
+    --forest: #406354;
+    --sage: #D8E6E1;
+    --ivory: #ECEAE4;
+    --white: #FFFFFF;
+    --bg: var(--ivory);
+    --card: var(--white);
+    --border: #d6d3c8;
+    --text: var(--night);
+    --muted: #5d5b56;
+    --hint: #9c9a93;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: var(--bg);
     color: var(--text);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-feature-settings: "ss01", "cv11";
   }
 
   /* ===== Hero / brand ===== */
   .hero {
-    background: var(--black);
+    background: var(--night);
     color: #fff;
     padding: 24px 32px 26px;
     position: relative;
@@ -43,7 +45,7 @@
   }
   .hero::after {
     content: ""; display: block;
-    height: 4px; background: var(--nova-yellow);
+    height: 4px; background: var(--laser-yellow);
     margin: 26px -32px -26px;
   }
   .hero-inner {
@@ -53,26 +55,29 @@
   }
   .hero-text { min-width: 0; }
   .brand-strip {
-    display: flex; align-items: center; gap: 18px;
+    display: flex; align-items: center; gap: 16px;
+    height: 52px;
   }
-  .brand-strip img { height: 48px; width: auto; display: block; }
+  .brand-strip .nova-wm { height: 30px; width: auto; display: block; }
+  .brand-strip .bird { height: 44px; width: auto; display: block; }
   .brand-strip .x {
     color: rgba(255,255,255,0.3);
-    font-size: 22px; font-weight: 200; line-height: 1;
+    font-size: 22px; font-weight: 300; line-height: 1;
   }
   .hero h1 {
-    font-size: 32px; margin: 0; font-weight: 800;
-    letter-spacing: -0.03em; line-height: 1;
+    font-size: 30px; margin: 0; font-weight: 700;
+    letter-spacing: -0.025em; line-height: 1;
     color: #fff;
   }
   .hero h1 em {
-    font-style: normal; color: var(--nova-yellow);
+    font-style: normal; color: var(--laser-yellow); font-weight: 700;
   }
   .hero .sub {
-    color: rgba(255,255,255,0.6);
-    font-size: 13px; margin-top: 6px;
-    letter-spacing: 0.005em;
-    font-weight: 400;
+    color: rgba(255,255,255,0.55);
+    font-size: 12px; margin-top: 8px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 500;
   }
 
   /* ===== Body wrap ===== */
@@ -93,10 +98,10 @@
     font-family: inherit;
   }
   .toggle button.active {
-    background: var(--black); color: var(--nova-yellow);
+    background: var(--night); color: var(--laser-yellow);
   }
   button.refresh {
-    background: var(--black); color: #fff; border: 0; padding: 9px 18px;
+    background: var(--night); color: #fff; border: 0; padding: 9px 18px;
     border-radius: 999px; font-size: 13px; cursor: pointer; margin-left: auto;
     font-weight: 600; letter-spacing: 0.005em;
     font-family: inherit;
@@ -119,10 +124,10 @@
 
   /* ===== Today leader banner ===== */
   .leader-banner {
-    background: var(--nova-yellow);
+    background: var(--laser-yellow);
     border-radius: 14px; padding: 16px 20px; margin-bottom: 18px;
     display: flex; align-items: center; gap: 12px;
-    font-size: 15px; color: var(--black);
+    font-size: 15px; color: var(--night);
     font-weight: 500;
   }
   .leader-banner.empty {
@@ -139,7 +144,7 @@
   }
   .board::before {
     content: ""; display: block;
-    height: 4px; background: var(--nova-yellow);
+    height: 4px; background: var(--laser-yellow);
   }
   .row {
     display: grid;
@@ -161,7 +166,7 @@
     font-variant-numeric: tabular-nums;
   }
   .rank.gold {
-    background: var(--nova-yellow); color: var(--black);
+    background: var(--laser-yellow); color: var(--night);
     border-radius: 999px;
     width: 32px; height: 32px;
     display: inline-flex; align-items: center; justify-content: center;
@@ -194,7 +199,7 @@
     margin-top: 6px; margin-left: auto; width: 90px; overflow: hidden;
   }
   .goal-bar > div {
-    height: 100%; background: var(--nova-yellow);
+    height: 100%; background: var(--laser-yellow);
     border-radius: 999px;
   }
   .goal-pct { font-size: 10px; color: var(--hint); margin-top: 3px; font-weight: 500; }
@@ -217,7 +222,7 @@
   .today.zero { color: var(--hint); font-weight: 500; }
   .today.fire {
     display: inline-block; padding: 4px 10px; border-radius: 999px;
-    background: var(--nova-yellow); color: var(--black);
+    background: var(--laser-yellow); color: var(--night);
     font-weight: 800;
   }
 
@@ -282,10 +287,10 @@
       <div class="sub">May 2026 challenge · #2026-pushup-challenge</div>
     </div>
     <div class="brand-strip">
-      <img src="/nova.svg" alt="Nova" id="logo-nova"
+      <img class="nova-wm" src="/nova-wordmark-light.svg" alt="Nova" id="logo-nova"
            onerror="this.style.display='none'; document.getElementById('brand-x').style.display='none';">
       <span class="x" id="brand-x">×</span>
-      <img src="/hummingbird.svg" alt="Hummingbird Drones" id="logo-bird"
+      <img class="bird" src="/hummingbird.svg" alt="Hummingbird Drones" id="logo-bird"
            onerror="this.style.display='none'; document.getElementById('brand-x').style.display='none';">
     </div>
   </div>
