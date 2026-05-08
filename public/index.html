@@ -35,38 +35,23 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* ===== Hero / brand ===== */
+  /* ===== Hero ===== */
   .hero {
     background: var(--night);
     color: #fff;
-    padding: 24px 32px 26px;
+    padding: 28px 32px 30px;
     position: relative;
     overflow: hidden;
   }
   .hero::after {
     content: ""; display: block;
     height: 4px; background: var(--laser-yellow);
-    margin: 26px -32px -26px;
+    margin: 30px -32px -30px;
   }
-  .hero-inner {
-    max-width: 880px; margin: 0 auto;
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 24px; flex-wrap: wrap;
-  }
-  .hero-text { min-width: 0; }
-  .brand-strip {
-    display: flex; align-items: center; gap: 16px;
-    height: 52px;
-  }
-  .brand-strip .nova-wm { height: 30px; width: auto; display: block; }
-  .brand-strip .bird { height: 44px; width: auto; display: block; }
-  .brand-strip .x {
-    color: rgba(255,255,255,0.3);
-    font-size: 22px; font-weight: 300; line-height: 1;
-  }
+  .hero-inner { max-width: 880px; margin: 0 auto; }
   .hero h1 {
-    font-size: 30px; margin: 0; font-weight: 700;
-    letter-spacing: -0.025em; line-height: 1;
+    font-size: 36px; margin: 0; font-weight: 700;
+    letter-spacing: -0.03em; line-height: 1;
     color: #fff;
   }
   .hero h1 em {
@@ -74,10 +59,27 @@
   }
   .hero .sub {
     color: rgba(255,255,255,0.55);
-    font-size: 12px; margin-top: 8px;
-    letter-spacing: 0.06em;
+    font-size: 12px; margin-top: 10px;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     font-weight: 500;
+  }
+
+  /* ===== Brand band below hero ===== */
+  .brand-band {
+    background: var(--sage);
+    padding: 14px 32px;
+  }
+  .brand-band-inner {
+    max-width: 880px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 24px;
+  }
+  .brand-band img.nova-wm { height: 28px; width: auto; display: block; }
+  .brand-band img.bird { height: 40px; width: auto; display: block; }
+  .brand-band .x {
+    color: rgba(25,19,20,0.35);
+    font-size: 20px; font-weight: 300; line-height: 1;
   }
 
   /* ===== Body wrap ===== */
@@ -160,6 +162,15 @@
     color: #888; font-weight: 700; letter-spacing: 0.06em;
     padding-top: 12px; padding-bottom: 12px;
   }
+  .row.header .sortable {
+    cursor: pointer; user-select: none;
+    transition: color 0.1s ease;
+  }
+  .row.header .sortable:hover { color: var(--text); }
+  .row.header .sortable.active { color: var(--text); }
+  .sort-ind { display: inline-block; width: 10px; opacity: 0.6; margin-left: 2px; }
+  .sortable.active.desc .sort-ind::after { content: "▼"; font-size: 8px; }
+  .sortable.active.asc  .sort-ind::after { content: "▲"; font-size: 8px; }
   .col-num { text-align: right; }
   .rank {
     font-weight: 800; font-size: 15px; text-align: center; color: var(--hint);
@@ -282,19 +293,19 @@
 
 <header class="hero">
   <div class="hero-inner">
-    <div class="hero-text">
-      <h1>Pushup <em>Leaderboard</em></h1>
-      <div class="sub">May 2026 challenge · #2026-pushup-challenge</div>
-    </div>
-    <div class="brand-strip">
-      <img class="nova-wm" src="/nova-wordmark-light.svg" alt="Nova" id="logo-nova"
-           onerror="this.style.display='none'; document.getElementById('brand-x').style.display='none';">
-      <span class="x" id="brand-x">×</span>
-      <img class="bird" src="/hummingbird.svg" alt="Hummingbird Drones" id="logo-bird"
-           onerror="this.style.display='none'; document.getElementById('brand-x').style.display='none';">
-    </div>
+    <h1>Pushup <em>Leaderboard</em></h1>
+    <div class="sub">May 2026 challenge · #2026-pushup-challenge</div>
   </div>
 </header>
+<div class="brand-band">
+  <div class="brand-band-inner">
+    <img class="nova-wm" src="/nova-wordmark.svg" alt="Nova" id="logo-nova"
+         onerror="this.style.display='none'; document.getElementById('brand-x').style.display='none';">
+    <span class="x" id="brand-x">×</span>
+    <img class="bird" src="/hummingbird.svg" alt="Hummingbird Drones" id="logo-bird"
+         onerror="this.style.display='none'; document.getElementById('brand-x').style.display='none';">
+  </div>
+</div>
 
 <div class="wrap">
 
@@ -319,10 +330,10 @@
     <div class="row header">
       <div>Rank</div>
       <div>Staff</div>
-      <div class="col-num">Total</div>
-      <div class="col-num col-avg">Avg/day</div>
-      <div class="col-num">Today</div>
-      <div class="col-num">Best day</div>
+      <div class="col-num sortable active desc" data-sort="count">Total<span class="sort-ind"></span></div>
+      <div class="col-num col-avg sortable" data-sort="avg">Avg/day<span class="sort-ind"></span></div>
+      <div class="col-num sortable" data-sort="today">Today<span class="sort-ind"></span></div>
+      <div class="col-num sortable" data-sort="best">Best day<span class="sort-ind"></span></div>
     </div>
     <div class="empty" id="empty">Loading…</div>
   </div>
@@ -336,12 +347,44 @@
 <script>
 let cachedData = null;
 let currentView = "monthly";
+let sortBy = "count";
+let sortDir = "desc";
 
 function setView(view) {
   currentView = view;
   document.getElementById("btn-month").classList.toggle("active", view === "monthly");
   document.getElementById("btn-all").classList.toggle("active", view === "allTime");
   if (cachedData) renderBoard(cachedData);
+}
+
+function setSort(field) {
+  if (sortBy === field) {
+    sortDir = sortDir === "desc" ? "asc" : "desc";
+  } else {
+    sortBy = field;
+    sortDir = "desc";
+  }
+  document.querySelectorAll(".row.header .sortable").forEach(el => {
+    const isActive = el.dataset.sort === sortBy;
+    el.classList.toggle("active", isActive);
+    el.classList.toggle("desc", isActive && sortDir === "desc");
+    el.classList.toggle("asc",  isActive && sortDir === "asc");
+  });
+  if (cachedData) renderBoard(cachedData);
+}
+
+function sortLeaderboard(arr) {
+  const get = (r) => {
+    if (sortBy === "count") return r.count;
+    if (sortBy === "avg")   return r.avgPerDay || 0;
+    if (sortBy === "today") return r.today || 0;
+    if (sortBy === "best")  return (r.bestDay && r.bestDay.count) || 0;
+    return 0;
+  };
+  return [...arr].sort((a, b) => {
+    const diff = get(b) - get(a);
+    return sortDir === "desc" ? diff : -diff;
+  });
 }
 
 function formatDate(yyyymmdd) {
@@ -390,7 +433,7 @@ function renderBoard(data) {
   const board = document.getElementById("board");
   board.querySelectorAll(".row:not(.header), .empty, .err").forEach(n => n.remove());
 
-  const ranked = view.leaderboard || [];
+  const ranked = sortLeaderboard(view.leaderboard || []);
   if (ranked.length === 0) {
     const e = document.createElement("div");
     e.className = "empty";
@@ -468,6 +511,9 @@ async function load() {
 document.getElementById("btn-month").addEventListener("click", () => setView("monthly"));
 document.getElementById("btn-all").addEventListener("click", () => setView("allTime"));
 document.getElementById("refresh").addEventListener("click", load);
+document.querySelectorAll(".row.header .sortable").forEach(el => {
+  el.addEventListener("click", () => setSort(el.dataset.sort));
+});
 load();
 </script>
 </body>
