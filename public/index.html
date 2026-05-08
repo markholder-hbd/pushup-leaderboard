@@ -18,13 +18,9 @@
     --sage: #D8E6E1;
     --ivory: #ECEAE4;
     --white: #FFFFFF;
-    --bg: var(--night);
-    --header-bg: var(--ivory);
+    --bg: var(--ivory);
     --card: var(--white);
-    --border: #2a2425;
-    --text-on-dark: #ECEAE4;
-    --muted-on-dark: rgba(236,234,228,0.55);
-    --hint-on-dark: rgba(236,234,228,0.4);
+    --border: #d6d3c8;
     --text: var(--night);
     --muted: #5d5b56;
     --hint: #9c9a93;
@@ -34,94 +30,94 @@
     margin: 0;
     font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: var(--bg);
-    color: var(--text-on-dark);
+    color: var(--text);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* ===== Hero (light) ===== */
+  /* ===== Hero (dark, compact) ===== */
   .hero {
-    background: var(--header-bg);
-    color: var(--text);
-    padding: 28px 32px 32px;
+    background: var(--night);
+    color: #fff;
+    padding: 20px 32px 22px;
     position: relative;
     overflow: hidden;
   }
   .hero::after {
     content: ""; display: block;
-    height: 5px; background: var(--laser-yellow);
-    margin: 32px -32px -32px;
+    height: 4px; background: var(--laser-yellow);
+    margin: 22px -32px -22px;
   }
   .hero-inner { max-width: 880px; margin: 0 auto; }
-  .hero-brand {
-    display: flex; align-items: center; gap: 20px;
-    margin-bottom: 22px;
-  }
-  .hero-brand img.nova-wm { height: 40px; width: auto; display: block; }
-  .hero-brand img.bird { height: 48px; width: auto; display: block; }
-  .hero-brand .x {
-    color: rgba(25,19,20,0.3);
-    font-size: 22px; font-weight: 300; line-height: 1;
-  }
   .hero h1 {
-    font-size: 38px; margin: 0; font-weight: 700;
-    letter-spacing: -0.03em; line-height: 1;
-    color: var(--night);
+    font-size: 30px; margin: 0; font-weight: 700;
+    letter-spacing: -0.025em; line-height: 1;
+    color: #fff;
   }
   .hero h1 em {
-    font-style: normal;
-    color: var(--night);
-    background: linear-gradient(transparent 60%, var(--laser-yellow) 60%);
-    padding: 0 4px;
-    margin: 0 -4px;
+    font-style: normal; color: var(--laser-yellow); font-weight: 700;
   }
   .hero .sub {
-    color: var(--muted);
-    font-size: 12px; margin-top: 10px;
+    color: rgba(255,255,255,0.55);
+    font-size: 11px; margin-top: 8px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     font-weight: 500;
   }
 
-  /* ===== Body wrap ===== */
-  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 16px 56px; }
+  /* ===== Page area below hero ===== */
+  .page {
+    display: grid;
+    grid-template-columns: minmax(80px, 1fr) min(880px, calc(100% - 64px)) minmax(80px, 1fr);
+    column-gap: 28px;
+    align-items: start;
+    padding: 28px 16px 48px;
+  }
+  .side-logo {
+    display: flex; align-items: flex-start; justify-content: center;
+    padding-top: 8px; min-width: 0;
+  }
+  .side-logo img { max-width: 100%; height: auto; display: block; }
+  .side-logo.left img  { max-width: 150px; }
+  .side-logo.right img { max-width: 180px; }
+  .main { min-width: 0; }
 
-  /* ===== Controls + meta (on dark) ===== */
+  /* ===== Body wrap ===== */
+  /* (legacy .wrap kept for backwards compat — now using .page grid) */
+
+  /* ===== Controls + meta ===== */
   .controls {
     display: flex; align-items: center; gap: 12px;
-    margin-bottom: 18px; flex-wrap: wrap;
+    margin-bottom: 16px; flex-wrap: wrap;
   }
   .toggle {
-    display: inline-flex;
-    background: rgba(236,234,228,0.08);
-    border: 1px solid rgba(236,234,228,0.1);
-    border-radius: 999px; padding: 3px;
+    display: inline-flex; background: #efece4; border-radius: 999px; padding: 3px;
   }
   .toggle button {
-    background: transparent; color: var(--muted-on-dark); border: 0; padding: 8px 18px;
+    background: transparent; color: #555; border: 0; padding: 7px 16px;
     border-radius: 999px; font-size: 13px; cursor: pointer; font-weight: 600;
     letter-spacing: 0.005em;
     font-family: inherit;
   }
   .toggle button.active {
-    background: var(--laser-yellow); color: var(--night);
+    background: var(--night); color: var(--laser-yellow);
   }
   button.refresh {
-    background: var(--laser-yellow); color: var(--night); border: 0; padding: 9px 18px;
+    background: var(--night); color: #fff; border: 0; padding: 8px 16px;
     border-radius: 999px; font-size: 13px; cursor: pointer; margin-left: auto;
-    font-weight: 700; letter-spacing: 0.005em;
+    font-weight: 600; letter-spacing: 0.005em;
     font-family: inherit;
   }
-  button.refresh:hover { filter: brightness(1.05); }
+  button.refresh:hover { background: #2a2425; }
   .meta {
-    display: flex; gap: 20px; font-size: 12px; color: var(--muted-on-dark);
-    margin-bottom: 18px; flex-wrap: wrap;
+    display: flex; gap: 18px; font-size: 12px; color: var(--muted);
+    margin-bottom: 16px; flex-wrap: wrap;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-weight: 500;
   }
   .meta b {
-    color: var(--text-on-dark); font-weight: 700;
+    color: var(--text); font-weight: 700;
     text-transform: none;
     letter-spacing: -0.01em;
     font-size: 14px;
@@ -137,9 +133,7 @@
     font-weight: 500;
   }
   .leader-banner.empty {
-    background: rgba(236,234,228,0.06);
-    border: 1px solid rgba(236,234,228,0.12);
-    color: var(--muted-on-dark); font-weight: 400;
+    background: #f3f0e6; color: var(--muted); font-weight: 400;
   }
   .leader-banner .flame { font-size: 18px; line-height: 1; }
   .leader-banner b { font-weight: 800; }
@@ -257,25 +251,32 @@
   }
   .err { color: #8a2d1c; background: #fdf3f1; }
   footer {
-    margin-top: 28px; font-size: 12px; color: var(--hint-on-dark); text-align: center;
+    margin-top: 28px; font-size: 12px; color: var(--hint); text-align: center;
     line-height: 1.7;
     letter-spacing: 0.005em;
   }
   footer code {
-    background: rgba(236,234,228,0.08); padding: 1px 6px; border-radius: 4px;
-    font-size: 11px; color: var(--text-on-dark);
+    background: #efece4; padding: 1px 6px; border-radius: 4px;
+    font-size: 11px; color: var(--text);
     font-family: "IBM Plex Mono", "SF Mono", "Menlo", monospace;
   }
   footer .footer-tip { display: block; margin-top: 4px; }
 
+  /* Collapse to single column when not enough room for side logos */
+  @media (max-width: 1180px) {
+    .page {
+      grid-template-columns: 1fr;
+      max-width: 880px; margin: 0 auto;
+      padding: 28px 16px 48px;
+    }
+    .side-logo { display: none; }
+  }
+
   @media (max-width: 720px) {
-    .hero { padding: 20px 22px 22px; }
-    .hero::after { margin: 22px -22px -22px; }
-    .hero h1 { font-size: 26px; }
+    .hero { padding: 16px 22px 18px; }
+    .hero::after { margin: 18px -22px -18px; }
+    .hero h1 { font-size: 24px; }
     .hero .sub { font-size: 11px; }
-    .hero-brand { gap: 14px; margin-bottom: 16px; }
-    .hero-brand img.nova-wm { height: 32px; }
-    .hero-brand img.bird { height: 38px; }
     .row {
       grid-template-columns: 36px 1fr 84px 56px 60px 80px;
       padding: 14px 14px;
@@ -300,53 +301,61 @@
 
 <header class="hero">
   <div class="hero-inner">
-    <div class="hero-brand">
-      <img class="nova-wm" src="/nova-wordmark.svg" alt="Nova" id="logo-nova"
-           onerror="this.style.display='none'; document.getElementById('brand-x').style.display='none';">
-      <span class="x" id="brand-x">×</span>
-      <img class="bird" src="/hummingbird.png" alt="Hummingbird Drones" id="logo-bird"
-           onerror="this.style.display='none'; document.getElementById('brand-x').style.display='none';">
-    </div>
     <h1>Pushup <em>Leaderboard</em></h1>
     <div class="sub">May 2026 challenge · #2026-pushup-challenge</div>
   </div>
 </header>
 
-<div class="wrap">
+<div class="page">
 
-  <div class="controls">
-    <div class="toggle" role="tablist">
-      <button id="btn-month" class="active" data-view="monthly">This month</button>
-      <button id="btn-all" data-view="allTime">All time</button>
+  <aside class="side-logo left">
+    <img src="/nova-wordmark.svg" alt="Nova" id="logo-nova"
+         onerror="this.parentElement.style.visibility='hidden';">
+  </aside>
+
+  <main class="main">
+
+    <div class="controls">
+      <div class="toggle" role="tablist">
+        <button id="btn-month" class="active" data-view="monthly">This month</button>
+        <button id="btn-all" data-view="allTime">All time</button>
+      </div>
+      <button class="refresh" id="refresh">Refresh</button>
     </div>
-    <button class="refresh" id="refresh">Refresh</button>
-  </div>
 
-  <div class="meta">
-    <span>Period <b id="period">—</b></span>
-    <span>Total <b id="total">—</b></span>
-    <span>Today <b id="today-total">—</b></span>
-    <span>Updated <b id="updated">—</b></span>
-  </div>
-
-  <div id="leader-banner" class="leader-banner empty">No pushups posted today yet.</div>
-
-  <div class="board" id="board">
-    <div class="row header">
-      <div>Rank</div>
-      <div>Staff</div>
-      <div class="col-num sortable active desc" data-sort="count">Total<span class="sort-ind"></span></div>
-      <div class="col-num col-avg sortable" data-sort="avg">Avg/day<span class="sort-ind"></span></div>
-      <div class="col-num sortable" data-sort="today">Today<span class="sort-ind"></span></div>
-      <div class="col-num sortable" data-sort="best">Best day<span class="sort-ind"></span></div>
+    <div class="meta">
+      <span>Period <b id="period">—</b></span>
+      <span>Total <b id="total">—</b></span>
+      <span>Today <b id="today-total">—</b></span>
+      <span>Updated <b id="updated">—</b></span>
     </div>
-    <div class="empty" id="empty">Loading…</div>
-  </div>
 
-  <footer>
-    Post a number in the Slack channel to add to your total. Negative (e.g. <code>-10</code>) subtracts.
-    <span class="footer-tip">Set your monthly goal in Slack: type <code>Goal: 1500</code></span>
-  </footer>
+    <div id="leader-banner" class="leader-banner empty">No pushups posted today yet.</div>
+
+    <div class="board" id="board">
+      <div class="row header">
+        <div>Rank</div>
+        <div>Staff</div>
+        <div class="col-num sortable active desc" data-sort="count">Total<span class="sort-ind"></span></div>
+        <div class="col-num col-avg sortable" data-sort="avg">Avg/day<span class="sort-ind"></span></div>
+        <div class="col-num sortable" data-sort="today">Today<span class="sort-ind"></span></div>
+        <div class="col-num sortable" data-sort="best">Best day<span class="sort-ind"></span></div>
+      </div>
+      <div class="empty" id="empty">Loading…</div>
+    </div>
+
+    <footer>
+      Post a number in the Slack channel to add to your total. Negative (e.g. <code>-10</code>) subtracts.
+      <span class="footer-tip">Set your monthly goal in Slack: type <code>Goal: 1500</code></span>
+    </footer>
+
+  </main>
+
+  <aside class="side-logo right">
+    <img src="/hummingbird.png" alt="Hummingbird Drones" id="logo-bird"
+         onerror="this.parentElement.style.visibility='hidden';">
+  </aside>
+
 </div>
 
 <script>
