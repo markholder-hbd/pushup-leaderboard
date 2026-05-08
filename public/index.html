@@ -15,7 +15,13 @@
     color: #1a1a1a;
     padding: 32px 16px;
   }
-  .wrap { max-width: 720px; margin: 0 auto; }
+  .wrap { max-width: 800px; margin: 0 auto; }
+  .brand-strip {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 22px;
+  }
+  .brand-strip img { height: 30px; width: auto; display: block; }
+  .brand-strip .x { color: #b8b3a4; font-size: 16px; font-weight: 500; }
   header {
     display: flex; align-items: baseline; justify-content: space-between;
     margin-bottom: 4px; flex-wrap: wrap; gap: 8px;
@@ -24,7 +30,7 @@
   .sub { color: #666; font-size: 13px; margin-bottom: 18px; }
   .controls {
     display: flex; align-items: center; gap: 12px;
-    margin-bottom: 18px; flex-wrap: wrap;
+    margin-bottom: 14px; flex-wrap: wrap;
   }
   .toggle {
     display: inline-flex; background: #efece4; border-radius: 8px; padding: 3px;
@@ -44,34 +50,73 @@
   button.refresh:hover { background: #333; }
   .meta {
     display: flex; gap: 16px; font-size: 12px; color: #666;
-    margin-bottom: 18px; flex-wrap: wrap;
+    margin-bottom: 14px; flex-wrap: wrap;
   }
   .meta b { color: #1a1a1a; }
+  .leader-banner {
+    background: #fff8ec; border: 1px solid #f3d68a;
+    border-radius: 10px; padding: 12px 16px; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px;
+  }
+  .leader-banner.empty { background: #f6f4ee; border-color: #e8e6e0; color: #888; }
+  .leader-banner .flame { font-size: 18px; }
+  .leader-banner b { color: #1a1a1a; }
   .board {
     background: #fff; border: 1px solid #e8e6e0; border-radius: 12px;
     overflow: hidden;
   }
   .row {
     display: grid;
-    grid-template-columns: 56px 1fr 100px 120px;
+    grid-template-columns: 50px 1fr 110px 70px 110px;
     align-items: center;
     padding: 14px 18px;
     border-bottom: 1px solid #f0eee8;
-    gap: 12px;
+    gap: 10px;
   }
   .row:last-child { border-bottom: 0; }
   .row.header {
     background: #f6f4ee; font-size: 11px; text-transform: uppercase;
     color: #777; font-weight: 600; letter-spacing: 0.04em;
+    padding-top: 10px; padding-bottom: 10px;
   }
+  .col-num { text-align: right; }
   .rank { font-weight: 700; font-size: 18px; text-align: center; }
   .rank.gold { color: #c8930a; }
   .rank.silver { color: #8a8a8a; }
   .rank.bronze { color: #a0612a; }
-  .name { font-weight: 600; font-size: 15px; }
-  .count { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 18px; }
-  .bar { height: 8px; background: #efece4; border-radius: 4px; overflow: hidden; }
-  .bar > div { height: 100%; background: linear-gradient(90deg, #f4a847, #e8772b); }
+  .name-cell { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .name {
+    font-weight: 600; font-size: 15px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .sub-line { font-size: 11px; color: #999; }
+  .total-cell { text-align: right; }
+  .count {
+    font-variant-numeric: tabular-nums; font-weight: 700; font-size: 18px;
+    line-height: 1.1;
+  }
+  .goal-bar {
+    height: 4px; background: #efece4; border-radius: 2px;
+    margin-top: 5px; margin-left: auto; width: 90px; overflow: hidden;
+  }
+  .goal-bar > div {
+    height: 100%; background: linear-gradient(90deg, #f4a847, #e8772b);
+    border-radius: 2px;
+  }
+  .goal-pct { font-size: 10px; color: #999; margin-top: 2px; }
+  .today {
+    font-variant-numeric: tabular-nums; font-size: 16px;
+    text-align: right; color: #1a1a1a; font-weight: 600;
+  }
+  .today.zero { color: #b8b3a4; font-weight: 400; }
+  .today.fire { color: #e8772b; font-weight: 700; }
+  .best {
+    font-variant-numeric: tabular-nums; font-size: 14px; text-align: right;
+    color: #1a1a1a; font-weight: 600;
+  }
+  .best .date { display: block; font-size: 10px; color: #999; font-weight: 400; }
+  .best.none { color: #b8b3a4; font-weight: 400; }
   .empty, .err {
     padding: 40px 20px; text-align: center; color: #888; font-size: 14px;
   }
@@ -79,10 +124,31 @@
   footer {
     margin-top: 24px; font-size: 12px; color: #999; text-align: center;
   }
+  @media (max-width: 600px) {
+    .row {
+      grid-template-columns: 36px 1fr 80px 56px 80px;
+      padding: 12px 12px;
+      gap: 6px;
+    }
+    .name { font-size: 14px; }
+    .count { font-size: 16px; }
+    .today { font-size: 14px; }
+    .best { font-size: 13px; }
+    .goal-bar { width: 70px; }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
+
+  <div class="brand-strip">
+    <img src="/nova.svg" alt="Nova"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='none';">
+    <span class="x">×</span>
+    <img src="/hummingbird.png" alt="Hummingbird"
+         onerror="this.style.display='none'; this.previousElementSibling.style.display='none';">
+  </div>
+
   <header>
     <h1>Pushup Leaderboard</h1>
   </header>
@@ -97,18 +163,28 @@
   </div>
 
   <div class="meta">
-    <span id="period-label">Period: <b id="period">—</b></span>
-    <span>Total: <b id="total">—</b> pushups</span>
+    <span>Period: <b id="period">—</b></span>
+    <span>Total: <b id="total">—</b></span>
+    <span>Today: <b id="today-total">—</b></span>
+    <span>Goal: <b id="goal-target">—</b>/mo</span>
     <span>Updated: <b id="updated">—</b></span>
   </div>
 
+  <div id="leader-banner" class="leader-banner empty">No pushups posted today yet.</div>
+
   <div class="board" id="board">
-    <div class="row header"><div>Rank</div><div>Staff</div><div>Pushups</div><div></div></div>
+    <div class="row header">
+      <div>Rank</div>
+      <div>Staff</div>
+      <div class="col-num">Total</div>
+      <div class="col-num">Today</div>
+      <div class="col-num">Best day</div>
+    </div>
     <div class="empty" id="empty">Loading…</div>
   </div>
 
   <footer>
-    Post a number in the Slack channel to add to your total. Top-level messages only — threaded replies aren't counted.
+    Post a number in the Slack channel to add to your total. Negative numbers (e.g. <code>-10</code>) subtract.
   </footer>
 </div>
 
@@ -123,11 +199,49 @@ function setView(view) {
   if (cachedData) renderBoard(cachedData);
 }
 
+function formatDate(yyyymmdd) {
+  if (!yyyymmdd) return "";
+  const parts = yyyymmdd.split("-");
+  if (parts.length !== 3) return yyyymmdd;
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const m = months[parseInt(parts[1], 10) - 1] || parts[1];
+  return m + " " + parseInt(parts[2], 10);
+}
+
+function renderLeaderBanner(data) {
+  const banner = document.getElementById("leader-banner");
+  if (data.todayLeader && data.todayLeader.count > 0) {
+    banner.classList.remove("empty");
+    banner.innerHTML =
+      '<span class="flame">🔥</span>' +
+      '<span><b>' + escapeHtml(data.todayLeader.name) + '</b> leads today with <b>' +
+      data.todayLeader.count.toLocaleString() + '</b> pushups</span>';
+  } else {
+    banner.classList.add("empty");
+    banner.textContent = "No pushups posted today yet.";
+  }
+}
+
+function escapeHtml(s) {
+  const div = document.createElement("div");
+  div.textContent = s;
+  return div.innerHTML;
+}
+
 function renderBoard(data) {
   const view = data[currentView] || { leaderboard: [], total: 0 };
   document.getElementById("period").textContent =
     currentView === "monthly" ? data.period : "All time";
   document.getElementById("total").textContent = (view.total || 0).toLocaleString();
+  document.getElementById("today-total").textContent = (data.todayTotal || 0).toLocaleString();
+  document.getElementById("goal-target").textContent = (data.monthlyGoal || 1000).toLocaleString();
+
+  if (currentView === "monthly") {
+    renderLeaderBanner(data);
+    document.getElementById("leader-banner").style.display = "";
+  } else {
+    document.getElementById("leader-banner").style.display = "none";
+  }
 
   const board = document.getElementById("board");
   board.querySelectorAll(".row:not(.header), .empty, .err").forEach(n => n.remove());
@@ -143,16 +257,34 @@ function renderBoard(data) {
     return;
   }
 
-  const max = ranked[0].count || 1;
   ranked.forEach((r, i) => {
     const row = document.createElement("div");
     row.className = "row";
     const medalClass = i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : "";
+    const todayCount = r.today || 0;
+    const todayClass = todayCount === 0 ? "zero" : (todayCount >= 50 ? "fire" : "");
+    const best = r.bestDay;
+    const avg = r.avgPerDay || 0;
+    const goalPct = (currentView === "monthly") ? (r.goalPercent || 0) : null;
+
     row.innerHTML = `
       <div class="rank ${medalClass}">${i + 1}</div>
-      <div class="name"></div>
-      <div class="count">${r.count.toLocaleString()}</div>
-      <div><div class="bar"><div style="width:${(r.count/max*100).toFixed(1)}%"></div></div></div>
+      <div class="name-cell">
+        <div class="name"></div>
+        <div class="sub-line">${avg > 0 ? "avg " + avg.toLocaleString() + "/day" : "—"}</div>
+      </div>
+      <div class="total-cell">
+        <div class="count">${r.count.toLocaleString()}</div>
+        ${goalPct !== null ? `
+          <div class="goal-bar"><div style="width:${goalPct}%"></div></div>
+          <div class="goal-pct">${goalPct}% of goal</div>
+        ` : ""}
+      </div>
+      <div class="today ${todayClass}">${todayCount > 0 ? todayCount.toLocaleString() : "—"}</div>
+      <div class="best ${best ? "" : "none"}">
+        ${best ? best.count.toLocaleString() : "—"}
+        ${best ? `<span class="date">${formatDate(best.date)}</span>` : ""}
+      </div>
     `;
     row.querySelector(".name").textContent = r.name;
     board.appendChild(row);

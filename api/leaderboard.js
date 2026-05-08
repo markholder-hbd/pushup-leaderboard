@@ -9,6 +9,7 @@ const DEFAULT_CHANNEL = "C0B2CQPFM4G";
 // messages posted AFTER add to these totals.
 const SEED_MONTH = "2026-05";
 const SEEDS_AS_OF_TS = 1778044007; // 2026-05-06 05:06 UTC
+const MONTHLY_GOAL = 1000; // pushups per person per month
 const SEED_TOTALS = [
   { slackId: "U08SCMV3886", name: "Mark Holder",      count: 80 },
   { slackId: "U0CU3LV6U",   name: "Robert",           count: 900 },
@@ -87,10 +88,26 @@ async function fetchUserNames(userIds, token) {
 function rank(totals, names) {
   const out = [];
   for (const uid of Object.keys(totals)) {
-    out.push({ name: names[uid] || uid, count: totals[uid] });
+    out.push({ uid: uid, name: names[uid] || uid, count: totals[uid] });
   }
   out.sort(function (a, b) { return b.count - a.count; });
   return out;
+}
+
+function pacificDateKey(tsSeconds) {
+  // Returns YYYY-MM-DD in America/Los_Angeles for a Unix timestamp (seconds).
+  const d = new Date(tsSeconds * 1000);
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Los_Angeles",
+    year: "numeric", month: "2-digit", day: "2-digit"
+  }).formatToParts(d);
+  let y = "", m = "", day = "";
+  for (const p of parts) {
+    if (p.type === "year") y = p.value;
+    else if (p.type === "month") m = p.value;
+    else if (p.type === "day") day = p.value;
+  }
+  return y + "-" + m + "-" + day;
 }
 
 async function getLeaderboardData() {
@@ -115,6 +132,7 @@ async function getLeaderboardData() {
 
   const monthly = {};
   const allTime = {};
+  const dailyByUser = {}; // dailyByUser[userId][YYYY-MM-DD] = total pushups that day
 
   for (const m of messages) {
     if (!m.user || !m.text) continue;
@@ -132,6 +150,10 @@ async function getLeaderboardData() {
     if (ts >= monthStartTs) {
       monthly[m.user] = (monthly[m.user] || 0) + n;
     }
+
+    const dateKey = pacificDateKey(ts);
+    if (!dailyByUser[m.user]) dailyByUser[m.user] = {};
+    dailyByUser[m.user][dateKey] = (dailyByUser[m.user][dateKey] || 0) + n;
   }
 
   // Apply starting totals
@@ -145,16 +167,67 @@ async function getLeaderboardData() {
     if (!names[s.slackId]) names[s.slackId] = s.name;
   }
 
-  const monthlyRanked = rank(monthly, names);
-  const allTimeRanked = rank(allTime, names);
+  const todayKey = pacificDateKey(Date.now() / 1000);
+  const seedKey = pacificDateKey(SEEDS_AS_OF_TS);
+
+  // Days elapsed since the seed cutoff (inclusive of today)
+  function dateDelta(d1, d2) {
+    const t1 = new Date(d1 + "T00:00:00Z").getTime();
+    const t2 = new Date(d2 + "T00:00:00Z").getTime();
+    return Math.floor((t2 - t1) / 86400000) + 1;
+  }
+  const daysElapsed = Math.max(1, dateDelta(seedKey, todayKey));
+
+  function annotate(entries) {
+    return entries.map(function (e) {
+      const days = dailyByUser[e.uid] || {};
+      const todayTotal = days[todayKey] || 0;
+      let bestCount = 0, bestDate = null;
+      let postSeedTotal = 0;
+      for (const d of Object.keys(days)) {
+        postSeedTotal += days[d];
+        if (days[d] > bestCount) { bestCount = days[d]; bestDate = d; }
+      }
+      return {
+        name: e.name,
+        count: e.count,
+        today: todayTotal,
+        bestDay: bestCount > 0 ? { count: bestCount, date: bestDate } : null,
+        avgPerDay: postSeedTotal > 0 ? Math.round(postSeedTotal / daysElapsed) : 0,
+        goalPercent: Math.min(100, Math.round((e.count / MONTHLY_GOAL) * 100))
+      };
+    });
+  }
+
+  const monthlyRanked = annotate(rank(monthly, names));
+  const allTimeRanked = annotate(rank(allTime, names));
 
   let monthlyTotal = 0;
   for (const k of Object.keys(monthly)) monthlyTotal += monthly[k];
   let allTimeTotal = 0;
   for (const k of Object.keys(allTime)) allTimeTotal += allTime[k];
 
+  // Today's grand total
+  let todayTotal = 0;
+  for (const uid of Object.keys(dailyByUser)) {
+    todayTotal += dailyByUser[uid][todayKey] || 0;
+  }
+
+  // Today's leader (highest "today" value among monthly leaderboard, ignoring zeros)
+  let todayLeader = null;
+  for (const r of monthlyRanked) {
+    if (r.today > 0 && (!todayLeader || r.today > todayLeader.count)) {
+      todayLeader = { name: r.name, count: r.today };
+    }
+  }
+
   return {
     period: now.toLocaleString("en-US", { month: "long", year: "numeric" }),
+    today: todayKey,
+    todayTotal: todayTotal,
+    todayLeader: todayLeader,
+    daysElapsed: daysElapsed,
+    monthlyGoal: MONTHLY_GOAL,
     channel: channel,
     monthly: { leaderboard: monthlyRanked, total: monthlyTotal },
     allTime: { leaderboard: allTimeRanked, total: allTimeTotal },
