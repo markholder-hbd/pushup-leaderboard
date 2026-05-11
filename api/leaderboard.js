@@ -19,6 +19,14 @@ const SEED_TOTALS = [
   { slackId: "seed:gord",   name: "Gord Sharpe",      count: 400 }
 ];
 
+// Manual daily entries — for participants not on Slack.
+// Each entry contributes to that user's daily/monthly/all-time totals.
+// Date is Pacific time (YYYY-MM-DD).
+const MANUAL_ENTRIES = [
+  { userId: "seed:gord", date: "2026-05-07", count: 240 },
+  { userId: "seed:gord", date: "2026-05-08", count: 220 }
+];
+
 const BOT_NAME_PATTERN = /^pushup\s+(leaderboard|challenge|bot)$/i;
 
 function parsePushups(text) {
@@ -182,6 +190,17 @@ async function getLeaderboardData() {
       monthly[s.slackId] = (monthly[s.slackId] || 0) + s.count;
     }
     if (!names[s.slackId]) names[s.slackId] = s.name;
+  }
+
+  // Apply manual daily entries (non-Slack participants)
+  for (const entry of MANUAL_ENTRIES) {
+    if (!dailyByUser[entry.userId]) dailyByUser[entry.userId] = {};
+    dailyByUser[entry.userId][entry.date] =
+      (dailyByUser[entry.userId][entry.date] || 0) + entry.count;
+    allTime[entry.userId] = (allTime[entry.userId] || 0) + entry.count;
+    if (entry.date.slice(0, 7) === currentMonthKey) {
+      monthly[entry.userId] = (monthly[entry.userId] || 0) + entry.count;
+    }
   }
 
   const todayKey = pacificDateKey(Date.now() / 1000);

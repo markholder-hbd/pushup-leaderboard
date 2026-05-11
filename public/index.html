@@ -22,8 +22,8 @@
     --card: var(--white);
     --border: #d6d3c8;
     --text: var(--night);
-    --muted: #5d5b56;
-    --hint: #9c9a93;
+    --muted: #4d4b46;
+    --hint: #6e6c66;
   }
   * { box-sizing: border-box; }
   body {
@@ -58,8 +58,8 @@
     font-style: normal; color: var(--laser-yellow); font-weight: 700;
   }
   .hero .sub {
-    color: rgba(255,255,255,0.55);
-    font-size: 11px; margin-top: 8px;
+    color: rgba(255,255,255,0.75);
+    font-size: 13px; margin-top: 8px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     font-weight: 500;
@@ -70,12 +70,12 @@
     display: grid;
     grid-template-columns: minmax(80px, 1fr) min(880px, calc(100% - 64px)) minmax(80px, 1fr);
     column-gap: 28px;
-    align-items: start;
+    align-items: stretch;
     padding: 28px 16px 48px;
   }
   .side-logo {
-    display: flex; align-items: flex-start; justify-content: center;
-    padding-top: 8px; min-width: 0;
+    display: flex; align-items: center; justify-content: center;
+    min-width: 0;
   }
   .side-logo img { max-width: 100%; height: auto; display: block; }
   .side-logo.left img  { max-width: 150px; }
@@ -110,11 +110,11 @@
   }
   button.refresh:hover { background: #2a2425; }
   .meta {
-    display: flex; gap: 18px; font-size: 12px; color: var(--muted);
+    display: flex; gap: 18px; font-size: 13px; color: var(--muted);
     margin-bottom: 16px; flex-wrap: wrap;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    font-weight: 500;
+    font-weight: 600;
   }
   .meta b {
     color: var(--text); font-weight: 700;
@@ -158,8 +158,8 @@
   }
   .row:last-child { border-bottom: 0; }
   .row.header {
-    background: #f6f4ee; font-size: 11px; text-transform: uppercase;
-    color: #888; font-weight: 700; letter-spacing: 0.06em;
+    background: #f6f4ee; font-size: 12px; text-transform: uppercase;
+    color: #555; font-weight: 700; letter-spacing: 0.06em;
     padding-top: 12px; padding-bottom: 12px;
   }
   .row.header .sortable {
@@ -213,7 +213,7 @@
     height: 100%; background: var(--laser-yellow);
     border-radius: 999px;
   }
-  .goal-pct { font-size: 10px; color: var(--hint); margin-top: 3px; font-weight: 500; }
+  .goal-pct { font-size: 11px; color: var(--muted); margin-top: 4px; font-weight: 600; }
 
   /* Avg — stand-out column */
   .stat-num {
@@ -243,7 +243,7 @@
     color: var(--text); font-weight: 700;
     letter-spacing: -0.02em;
   }
-  .best .date { display: block; font-size: 10px; color: var(--hint); font-weight: 500; letter-spacing: 0; margin-top: 2px; }
+  .best .date { display: block; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0; margin-top: 3px; }
   .best.none { color: var(--hint); font-weight: 500; }
 
   .empty, .err {
@@ -251,7 +251,7 @@
   }
   .err { color: #8a2d1c; background: #fdf3f1; }
   footer {
-    margin-top: 28px; font-size: 12px; color: var(--hint); text-align: center;
+    margin-top: 28px; font-size: 13px; color: var(--muted); text-align: center;
     line-height: 1.7;
     letter-spacing: 0.005em;
   }
