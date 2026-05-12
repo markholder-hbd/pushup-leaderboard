@@ -150,17 +150,22 @@
   }
   .row {
     display: grid;
-    grid-template-columns: 36px 1fr 96px 64px 64px 76px 64px 92px;
+    grid-template-columns: 36px 1fr 96px 76px 76px 84px 64px 92px;
     align-items: center;
     padding: 18px 24px;
     border-bottom: 1px solid #f0eee8;
-    gap: 26px;
+    gap: 24px;
   }
   .row:last-child { border-bottom: 0; }
   .row.header {
     background: #f6f4ee; font-size: 12px; text-transform: uppercase;
     color: #555; font-weight: 700; letter-spacing: 0.06em;
-    padding-top: 16px; padding-bottom: 16px;
+    padding-top: 14px; padding-bottom: 14px;
+  }
+  .row.header .col-sublabel {
+    display: block; font-weight: 500; font-size: 10px;
+    text-transform: lowercase; letter-spacing: 0.02em;
+    margin-top: 3px; color: #777;
   }
   .row.header .sortable {
     cursor: pointer; user-select: none;
@@ -292,7 +297,7 @@
     .hero h1 { font-size: 24px; }
     .hero .sub { font-size: 11px; }
     .row {
-      grid-template-columns: 32px 1fr 76px 50px 50px 60px 52px 72px;
+      grid-template-columns: 32px 1fr 76px 60px 60px 68px 52px 72px;
       padding: 14px 14px;
       gap: 12px;
     }
@@ -351,8 +356,8 @@
         <div>Rank</div>
         <div>Staff</div>
         <div class="col-num sortable active desc" data-sort="count">Total<span class="sort-ind"></span></div>
-        <div class="col-num col-avg-cal sortable" data-sort="avgCal" title="Total pushups ÷ days since the challenge started (including off days)">Avg/day<span class="sort-ind"></span></div>
-        <div class="col-num col-avg-act sortable" data-sort="avgAct" title="Total pushups ÷ days you actually posted (off days excluded)">Avg/active<span class="sort-ind"></span></div>
+        <div class="col-num col-avg-cal sortable" data-sort="avgCal" title="Total pushups ÷ days since the challenge started (including off days)">Avg/day<span class="col-sublabel">(all days)</span><span class="sort-ind"></span></div>
+        <div class="col-num col-avg-act sortable" data-sort="avgAct" title="Total pushups ÷ days you actually posted (off days excluded)">Avg/day<span class="col-sublabel">(active days)</span><span class="sort-ind"></span></div>
         <div class="col-num col-yest sortable" data-sort="yesterday">Yesterday<span class="sort-ind"></span></div>
         <div class="col-num sortable" data-sort="today">Today<span class="sort-ind"></span></div>
         <div class="col-num sortable" data-sort="best">Best day<span class="sort-ind"></span></div>
@@ -361,8 +366,8 @@
     </div>
 
     <div class="board-note">
-      <b>Avg/day</b> = total ÷ days since the challenge started (includes off days).
-      <b>Avg/active</b> = total ÷ days you actually posted.
+      <b>Avg/day (all days)</b> = total ÷ days since the challenge started.
+      <b>Avg/day (active days)</b> = total ÷ days you actually posted.
     </div>
 
     <footer>
