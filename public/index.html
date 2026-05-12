@@ -68,7 +68,7 @@
   /* ===== Page area below hero ===== */
   .page {
     display: grid;
-    grid-template-columns: minmax(80px, 1fr) min(880px, calc(100% - 64px)) minmax(80px, 1fr);
+    grid-template-columns: minmax(80px, 1fr) min(960px, calc(100% - 64px)) minmax(80px, 1fr);
     column-gap: 28px;
     align-items: stretch;
     padding: 28px 16px 48px;
@@ -150,9 +150,9 @@
   }
   .row {
     display: grid;
-    grid-template-columns: 40px 1fr 100px 70px 80px 70px 96px;
+    grid-template-columns: 36px 1fr 96px 64px 64px 76px 64px 92px;
     align-items: center;
-    padding: 18px 26px;
+    padding: 18px 24px;
     border-bottom: 1px solid #f0eee8;
     gap: 26px;
   }
@@ -259,8 +259,13 @@
     padding: 44px 20px; text-align: center; color: var(--muted); font-size: 14px;
   }
   .err { color: #8a2d1c; background: #fdf3f1; }
+  .board-note {
+    margin-top: 10px; font-size: 12px; color: var(--muted);
+    text-align: right; padding-right: 4px; line-height: 1.6;
+  }
+  .board-note b { font-weight: 700; color: var(--text); }
   footer {
-    margin-top: 28px; font-size: 13px; color: var(--muted); text-align: center;
+    margin-top: 24px; font-size: 13px; color: var(--muted); text-align: center;
     line-height: 1.7;
     letter-spacing: 0.005em;
   }
@@ -272,10 +277,10 @@
   footer .footer-tip { display: block; margin-top: 4px; }
 
   /* Collapse to single column when not enough room for side logos */
-  @media (max-width: 1180px) {
+  @media (max-width: 1280px) {
     .page {
       grid-template-columns: 1fr;
-      max-width: 880px; margin: 0 auto;
+      max-width: 960px; margin: 0 auto;
       padding: 28px 16px 48px;
     }
     .side-logo { display: none; }
@@ -287,7 +292,7 @@
     .hero h1 { font-size: 24px; }
     .hero .sub { font-size: 11px; }
     .row {
-      grid-template-columns: 32px 1fr 80px 52px 60px 56px 76px;
+      grid-template-columns: 32px 1fr 76px 50px 50px 60px 52px 72px;
       padding: 14px 14px;
       gap: 12px;
     }
@@ -302,7 +307,7 @@
 
   @media (max-width: 480px) {
     .row { grid-template-columns: 32px 1fr 72px 50px 70px; }
-    .col-avg, .col-yest { display: none; }
+    .col-avg-cal, .col-avg-act, .col-yest { display: none; }
   }
 </style>
 </head>
@@ -346,12 +351,18 @@
         <div>Rank</div>
         <div>Staff</div>
         <div class="col-num sortable active desc" data-sort="count">Total<span class="sort-ind"></span></div>
-        <div class="col-num col-avg sortable" data-sort="avg">Avg/day<span class="sort-ind"></span></div>
+        <div class="col-num col-avg-cal sortable" data-sort="avgCal" title="Total pushups ÷ days since the challenge started (including off days)">Avg/day<span class="sort-ind"></span></div>
+        <div class="col-num col-avg-act sortable" data-sort="avgAct" title="Total pushups ÷ days you actually posted (off days excluded)">Avg/active<span class="sort-ind"></span></div>
         <div class="col-num col-yest sortable" data-sort="yesterday">Yesterday<span class="sort-ind"></span></div>
         <div class="col-num sortable" data-sort="today">Today<span class="sort-ind"></span></div>
         <div class="col-num sortable" data-sort="best">Best day<span class="sort-ind"></span></div>
       </div>
       <div class="empty" id="empty">Loading…</div>
+    </div>
+
+    <div class="board-note">
+      <b>Avg/day</b> = total ÷ days since the challenge started (includes off days).
+      <b>Avg/active</b> = total ÷ days you actually posted.
     </div>
 
     <footer>
@@ -400,7 +411,8 @@ function setSort(field) {
 function sortLeaderboard(arr) {
   const get = (r) => {
     if (sortBy === "count")     return r.count;
-    if (sortBy === "avg")       return r.avgPerDay || 0;
+    if (sortBy === "avgCal")    return r.avgPerCalendarDay || 0;
+    if (sortBy === "avgAct")    return r.avgPerActiveDay || 0;
     if (sortBy === "yesterday") return r.yesterday || 0;
     if (sortBy === "today")     return r.today || 0;
     if (sortBy === "best")      return (r.bestDay && r.bestDay.count) || 0;
@@ -477,7 +489,8 @@ function renderBoard(data) {
     const todayClass = todayCount === 0 ? "zero" : (todayCount >= 50 ? "fire" : "");
     const yesterdayCount = r.yesterday || 0;
     const best = r.bestDay;
-    const avg = r.avgPerDay || 0;
+    const avgCal = r.avgPerCalendarDay || 0;
+    const avgAct = r.avgPerActiveDay || 0;
     const showGoal = (currentView === "monthly");
     const goalPct = showGoal ? (r.goalPercent || 0) : null;
     const goalTarget = r.goalTarget || 1000;
@@ -492,8 +505,11 @@ function renderBoard(data) {
           <div class="goal-pct">${goalPct}% of ${goalTarget.toLocaleString()}</div>
         ` : ""}
       </div>
-      <div class="col-avg col-num">
-        <span class="stat-num ${avg === 0 ? "zero" : ""}">${avg > 0 ? avg.toLocaleString() : "—"}</span>
+      <div class="col-avg-cal col-num">
+        <span class="stat-num ${avgCal === 0 ? "zero" : ""}">${avgCal > 0 ? avgCal.toLocaleString() : "—"}</span>
+      </div>
+      <div class="col-avg-act col-num">
+        <span class="stat-num ${avgAct === 0 ? "zero" : ""}">${avgAct > 0 ? avgAct.toLocaleString() : "—"}</span>
       </div>
       <div class="col-yest yesterday-cell">
         <span class="yesterday ${yesterdayCount === 0 ? "zero" : ""}">${yesterdayCount > 0 ? yesterdayCount.toLocaleString() : "—"}</span>
