@@ -24,7 +24,8 @@ const SEED_TOTALS = [
 // Date is Pacific time (YYYY-MM-DD).
 const MANUAL_ENTRIES = [
   { userId: "seed:gord", date: "2026-05-07", count: 240 },
-  { userId: "seed:gord", date: "2026-05-08", count: 220 }
+  { userId: "seed:gord", date: "2026-05-08", count: 220 },
+  { userId: "seed:gord", date: "2026-05-11", count: 220 }
 ];
 
 const BOT_NAME_PATTERN = /^pushup\s+(leaderboard|challenge|bot)$/i;
@@ -223,6 +224,8 @@ async function getLeaderboardData() {
     return Math.floor((t2 - t1) / 86400000) + 1;
   }
   const daysElapsed = Math.max(1, dateDelta(seedKey, todayKey));
+  // Day-of-month (1-31) in Pacific — used as denominator for "all days" avg
+  const dayOfMonth = Math.max(1, parseInt(todayKey.split("-")[2], 10));
 
   function annotate(entries) {
     return entries.map(function (e) {
@@ -243,7 +246,7 @@ async function getLeaderboardData() {
         yesterday: days[yesterdayKey] || 0,
         bestDay: bestCount > 0 ? { count: bestCount, date: bestDate } : null,
         avgPerActiveDay: dayList.length > 0 ? Math.round(postSeedTotal / dayList.length) : 0,
-        avgPerCalendarDay: postSeedTotal > 0 ? Math.round(postSeedTotal / daysElapsed) : 0,
+        avgPerCalendarDay: postSeedTotal > 0 ? Math.round(postSeedTotal / dayOfMonth) : 0,
         daysActive: dayList.length,
         goalTarget: goalTarget,
         goalPercent: Math.min(100, Math.round((e.count / goalTarget) * 100)),
