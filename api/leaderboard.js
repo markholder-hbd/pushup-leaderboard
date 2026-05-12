@@ -206,6 +206,16 @@ async function getLeaderboardData() {
   const todayKey = pacificDateKey(Date.now() / 1000);
   const seedKey = pacificDateKey(SEEDS_AS_OF_TS);
 
+  // Yesterday in Pacific = today's date minus 1 day (pure date math, no TZ math)
+  const yesterdayKey = (function () {
+    const p = todayKey.split("-").map(Number);
+    const d = new Date(Date.UTC(p[0], p[1] - 1, p[2]));
+    d.setUTCDate(d.getUTCDate() - 1);
+    return d.getUTCFullYear() + "-" +
+      String(d.getUTCMonth() + 1).padStart(2, "0") + "-" +
+      String(d.getUTCDate()).padStart(2, "0");
+  })();
+
   // Days elapsed since the seed cutoff (inclusive of today)
   function dateDelta(d1, d2) {
     const t1 = new Date(d1 + "T00:00:00Z").getTime();
@@ -230,8 +240,9 @@ async function getLeaderboardData() {
         name: e.name,
         count: e.count,
         today: todayTotal,
+        yesterday: days[yesterdayKey] || 0,
         bestDay: bestCount > 0 ? { count: bestCount, date: bestDate } : null,
-        avgPerDay: postSeedTotal > 0 ? Math.round(postSeedTotal / daysElapsed) : 0,
+        avgPerDay: dayList.length > 0 ? Math.round(postSeedTotal / dayList.length) : 0,
         daysActive: dayList.length,
         goalTarget: goalTarget,
         goalPercent: Math.min(100, Math.round((e.count / goalTarget) * 100)),

@@ -150,11 +150,11 @@
   }
   .row {
     display: grid;
-    grid-template-columns: 44px 1fr 110px 70px 70px 100px;
+    grid-template-columns: 44px 1fr 100px 64px 70px 70px 92px;
     align-items: center;
-    padding: 16px 20px;
+    padding: 16px 18px;
     border-bottom: 1px solid #f0eee8;
-    gap: 12px;
+    gap: 10px;
   }
   .row:last-child { border-bottom: 0; }
   .row.header {
@@ -223,6 +223,15 @@
   }
   .stat-num.zero { color: var(--hint); font-weight: 500; }
 
+  /* Yesterday */
+  .yesterday-cell { text-align: right; }
+  .yesterday {
+    font-variant-numeric: tabular-nums; font-size: 16px;
+    color: var(--text); font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .yesterday.zero { color: var(--hint); font-weight: 500; }
+
   /* Today */
   .today-cell { text-align: right; }
   .today {
@@ -278,7 +287,7 @@
     .hero h1 { font-size: 24px; }
     .hero .sub { font-size: 11px; }
     .row {
-      grid-template-columns: 36px 1fr 84px 56px 60px 80px;
+      grid-template-columns: 36px 1fr 84px 56px 60px 60px 80px;
       padding: 14px 14px;
       gap: 8px;
     }
@@ -293,7 +302,7 @@
 
   @media (max-width: 480px) {
     .row { grid-template-columns: 32px 1fr 72px 50px 70px; }
-    .col-avg { display: none; }
+    .col-avg, .col-yest { display: none; }
   }
 </style>
 </head>
@@ -338,6 +347,7 @@
         <div>Staff</div>
         <div class="col-num sortable active desc" data-sort="count">Total<span class="sort-ind"></span></div>
         <div class="col-num col-avg sortable" data-sort="avg">Avg/day<span class="sort-ind"></span></div>
+        <div class="col-num col-yest sortable" data-sort="yesterday">Yesterday<span class="sort-ind"></span></div>
         <div class="col-num sortable" data-sort="today">Today<span class="sort-ind"></span></div>
         <div class="col-num sortable" data-sort="best">Best day<span class="sort-ind"></span></div>
       </div>
@@ -389,10 +399,11 @@ function setSort(field) {
 
 function sortLeaderboard(arr) {
   const get = (r) => {
-    if (sortBy === "count") return r.count;
-    if (sortBy === "avg")   return r.avgPerDay || 0;
-    if (sortBy === "today") return r.today || 0;
-    if (sortBy === "best")  return (r.bestDay && r.bestDay.count) || 0;
+    if (sortBy === "count")     return r.count;
+    if (sortBy === "avg")       return r.avgPerDay || 0;
+    if (sortBy === "yesterday") return r.yesterday || 0;
+    if (sortBy === "today")     return r.today || 0;
+    if (sortBy === "best")      return (r.bestDay && r.bestDay.count) || 0;
     return 0;
   };
   return [...arr].sort((a, b) => {
@@ -464,6 +475,7 @@ function renderBoard(data) {
     const medalClass = i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : "";
     const todayCount = r.today || 0;
     const todayClass = todayCount === 0 ? "zero" : (todayCount >= 50 ? "fire" : "");
+    const yesterdayCount = r.yesterday || 0;
     const best = r.bestDay;
     const avg = r.avgPerDay || 0;
     const showGoal = (currentView === "monthly");
@@ -482,6 +494,9 @@ function renderBoard(data) {
       </div>
       <div class="col-avg col-num">
         <span class="stat-num ${avg === 0 ? "zero" : ""}">${avg > 0 ? avg.toLocaleString() : "—"}</span>
+      </div>
+      <div class="col-yest yesterday-cell">
+        <span class="yesterday ${yesterdayCount === 0 ? "zero" : ""}">${yesterdayCount > 0 ? yesterdayCount.toLocaleString() : "—"}</span>
       </div>
       <div class="today-cell">
         ${todayCount > 0
