@@ -16,16 +16,13 @@ const SEED_TOTALS = [
   { slackId: "U07063Z2JAZ", name: "Marshall Sharpe",  count: 400 },
   { slackId: "U0CU4H9RD",   name: "Richard Sullivan", count: 510 },
   { slackId: "U0AQD7TR7MG", name: "Nate Cortés",      count: 255 },
-  { slackId: "seed:gord",   name: "Gord S",           count: 785 }
+  { slackId: "U0B2357CFSN", name: "Gord S",           count: 400 }
 ];
 
 // Manual daily entries — for participants not on Slack.
 // Each entry contributes to that user's daily/monthly/all-time totals.
 // Date is Pacific time (YYYY-MM-DD).
 const MANUAL_ENTRIES = [
-  { userId: "seed:gord", date: "2026-05-07", count: 240 },
-  { userId: "seed:gord", date: "2026-05-08", count: 220 },
-  { userId: "seed:gord", date: "2026-05-11", count: 220 }
 ];
 
 const BOT_NAME_PATTERN = /^pushup\s+(leaderboard|challenge|bot)$/i;
