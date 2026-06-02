@@ -122,7 +122,10 @@ async function getLeaderboardData() {
   if (!token) throw new Error("SLACK_BOT_TOKEN env var is not set");
 
   const now = new Date();
-  const monthStartTs = new Date(now.getFullYear(), now.getMonth(), 1).getTime() / 1000;
+  // Use Pacific date to determine the current month — so posts late on the
+  // last day of the month in Pacific don't roll over to next month (UTC).
+  const todayKey = pacificDateKey(Date.now() / 1000);
+  const currentMonthKey = todayKey.slice(0, 7); // YYYY-MM in Pacific
 
   const messages = await fetchAllMessages(channel, token);
   const userIdSet = {};
@@ -169,19 +172,18 @@ async function getLeaderboardData() {
     const n = parsePushups(m.text);
     if (n == null || n === 0 || Math.abs(n) > 5000) continue;
 
+    const dateKey = pacificDateKey(ts);
+
     allTime[m.user] = (allTime[m.user] || 0) + n;
-    if (ts >= monthStartTs) {
+    if (dateKey.slice(0, 7) === currentMonthKey) {
       monthly[m.user] = (monthly[m.user] || 0) + n;
     }
 
-    const dateKey = pacificDateKey(ts);
     if (!dailyByUser[m.user]) dailyByUser[m.user] = {};
     dailyByUser[m.user][dateKey] = (dailyByUser[m.user][dateKey] || 0) + n;
   }
 
   // Apply starting totals
-  const currentMonthKey = now.getFullYear() + "-" +
-    String(now.getMonth() + 1).padStart(2, "0");
   for (const s of SEED_TOTALS) {
     allTime[s.slackId] = (allTime[s.slackId] || 0) + s.count;
     if (currentMonthKey === SEED_MONTH) {
@@ -201,7 +203,6 @@ async function getLeaderboardData() {
     }
   }
 
-  const todayKey = pacificDateKey(Date.now() / 1000);
   const seedKey = pacificDateKey(SEEDS_AS_OF_TS);
 
   // Yesterday in Pacific = today's date minus 1 day (pure date math, no TZ math)
